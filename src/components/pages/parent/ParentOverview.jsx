@@ -12,9 +12,6 @@ export default function ParentOverview() {
         <p>Клас: 11-А</p>
         <p>Середній бал: 12</p>
         <p>Відвідуваність: 500%</p>
-      </div>
-
-      <div className="card">
         <h2>Оцінки</h2>
         <table className="data-table">
           <thead>
