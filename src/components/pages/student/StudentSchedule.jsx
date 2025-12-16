@@ -1,11 +1,14 @@
 import React from "react";
 
-const times = ['08:30', '09:20', '10:10', '11:00', '11:50', '12:40'];
+const times = ['08:30', '09:20', '10:10', '11:00', '11:50', '12:40', '13:30', '14:20'];
 const days = ['Понеділок','Вівторок','Середа','Четвер','Пʼятниця'];
 
 const sample = {
-  'Понеділок': [{ time: '08:30', subject: 'Алгебра', room: '307' }],
-  'Вівторок': [{ time: '09:20', subject: 'Фізика', room: '210' }],
+  'Понеділок': [{ time: '08:30', subject: 'Алгебра'}],
+  'Вівторок': [{ time: '09:20', subject: 'Фізика'}],
+  'Середа': [{ time: '10:10', subject: 'Українська мова'}],
+  'Четвер': [{ time: '11:00', subject: 'Географія'}],
+  'Пʼятниця': [{ time: '12:40', subject: 'Історія'}],
 };
 
 export default function StudentSchedule() {
@@ -26,7 +29,6 @@ export default function StudentSchedule() {
                   { (sample[d]||[]).find(e => e.time === t) ? (
                     <div className="lesson">
                       <div className="lesson-subject">{(sample[d].find(e => e.time===t)||{}).subject}</div>
-                      <div className="lesson-room">{(sample[d].find(e => e.time===t)||{}).room}</div>
                     </div>
                   ) : null }
                 </div>

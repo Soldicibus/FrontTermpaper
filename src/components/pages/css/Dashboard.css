@@ -18,7 +18,7 @@
 }
 .main__header h1 {
   margin: 0;
-  font-size: 1.8rem;
+  font-size: 3rem;
 }
 .tabs {
   display: flex;
@@ -28,9 +28,11 @@
 }
 .tabs button {
   background: transparent;
+  width: 20vw;
+  font-size: medium;
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: #fff;
-  padding: 8px 12px;
+  padding: 11px 12px;
   border-radius: 999px;
   cursor: pointer;
 }
@@ -53,9 +55,10 @@
 }
 .journal-table th,
 .journal-table td {
-  padding: 8px 10px;
+  padding: 18px 4px;
   border-bottom: 1px solid rgba(255, 255, 255, 0.04);
   text-align: center;
+  font-size: 1rem;
 }
 .journal-table th:first-child,
 .journal-table td:first-child {
@@ -129,9 +132,12 @@
 }
 
 .card.schedule-card {
-  padding: 12px;
+  padding: 22px;
   background: var(--muted-bg);
   border-radius: 10px;
+  height: max-content;
+  width: max-content;
+  font-size: x-large;
 }
 .week-grid {
   display: block;
@@ -155,15 +161,17 @@
 .row {
   display: grid;
   grid-template-columns: 80px repeat(5, 1fr);
+  margin-top: 8px;
   gap: 8px;
-  align-items: start;
+  align-items: center;
 }
 .time-col {
   padding: 8px 6px;
+  font-weight: 700;
   color: rgba(255, 255, 255, 0.85);
 }
 .cell {
-  min-height: 48px;
+  min-height: 80px;
   background: rgba(255, 255, 255, 0.02);
   border-radius: 8px;
   padding: 6px;
@@ -171,6 +179,8 @@
 .lesson {
   background: rgba(255, 255, 255, 0.06);
   padding: 6px;
+  height: 40px;
+  margin-top: 10%;
   border-radius: 6px;
 }
 .lesson-subject {
@@ -192,6 +202,7 @@
 }
 .card {
   background: var(--card-bg);
+  margin: 1vw;
   color: #fff;
   border-radius: 12px;
   padding: 12px;

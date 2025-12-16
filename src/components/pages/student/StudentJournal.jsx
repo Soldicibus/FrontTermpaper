@@ -1,20 +1,27 @@
 import React from "react";
 
 export default function StudentJournal() {
-  // sample journal entries (subject, date, mark/status)
   const entries = [
     { subject: 'Математика', date: '2025-09-12', mark: 10, status: 'Присутній' },
     { subject: 'Українська мова', date: '2025-09-13', mark: null, status: 'Не присутній' },
     { subject: 'Математика', date: '2025-09-19', mark: 9, status: 'Присутній' },
     { subject: 'Фізика', date: '2025-09-20', mark: 8, status: 'Присутній' },
     { subject: 'Математика', date: '2025-09-26', mark: 11, status: 'Присутній' },
+    { subject: 'Українська мова', date: '2025-09-27', mark: 10, status: 'Присутній' },
+    { subject: 'Фізика', date: '2025-10-03', mark: null, status: 'Не присутній' },
+    { subject: 'Математика', date: '2025-10-04', mark: 12, status: 'Присутній' },
+    { subject: 'Анонізм', date: '2025-10-05', mark: 12, status: 'Присутній' },
+    { subject: 'Анонізм', date: '2025-09-12', mark: 12, status: 'Присутній' },
+    { subject: 'Анонізм', date: '2025-09-12', mark: 12, status: 'Присутній' },
+    { subject: 'Анонізм', date: '2025-09-13', mark: 12, status: 'Присутній' },
+    { subject: 'Анонізм', date: '2025-09-19', mark: 12, status: 'Присутній' },
+    { subject: 'Анонізм', date: '2025-09-20', mark: 12, status: 'Присутній' },
+    { subject: 'Анонізм', date: '2025-09-27', mark: 12, status: 'Присутній' },
   ];
 
-  // compute unique dates (sorted) and subjects
   const dates = Array.from(new Set(entries.map(e => e.date))).sort();
   const subjects = Array.from(new Set(entries.map(e => e.subject))).sort();
 
-  // build lookup subject -> date -> entry
   const lookup = {};
   entries.forEach(e => {
     lookup[e.subject] = lookup[e.subject] || {};

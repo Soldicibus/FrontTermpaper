@@ -1,3 +1,5 @@
+import React from "react";
+
 export default function ParentOverview() {
   return (
     <main className="main">
@@ -6,10 +8,10 @@ export default function ParentOverview() {
       </div>
 
       <div className="card">
-        <h2>Дитина: Петренко Андрій</h2>
-        <p>Клас: 7-Б</p>
-        <p>Середній бал: 9.1</p>
-        <p>Відвідуваність: 95%</p>
+        <h2>Дитина: Чуківський Микола</h2>
+        <p>Клас: 11-А</p>
+        <p>Середній бал: 12</p>
+        <p>Відвідуваність: 500%</p>
       </div>
 
       <div className="card">
@@ -23,8 +25,8 @@ export default function ParentOverview() {
           </thead>
           <tbody>
             <tr>
-              <td>Математика</td>
-              <td>10</td>
+              <td>Анонізм</td>
+              <td>12</td>
             </tr>
           </tbody>
         </table>

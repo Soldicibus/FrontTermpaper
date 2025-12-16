@@ -3,6 +3,7 @@ import React, { useState } from "react";
 const sample = [
   { id: 1, subject: 'Фізика', title: '§5, задачі', due: '2025-09-20', teacher: 'Іваненко О.О.', desc: 'Розв’язати задачі з підручника стор. 45–47' },
   { id: 2, subject: 'Українська мова', title: 'Вправи з граматики', due: '2025-09-21', teacher: 'Петренко О.С.', desc: 'Вправа 4, с. 33' },
+  { id: 3, subject: 'Математика', title: 'Домашнє завдання', due: '2025-09-22', teacher: 'Сидоренко І.В.', desc: 'Розв’язати рівняння з підручника с. 50–52' },
 ];
 
 export default function StudentHomework() {

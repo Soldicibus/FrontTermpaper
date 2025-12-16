@@ -3,6 +3,8 @@ import React from "react";
 const materials = [
   { id: 1, title: 'Алгебра: Лінійні рівняння', type: 'Презентація', link: '#', date: '2025-09-10' },
   { id: 2, title: 'Фізика: Пояснення', type: 'Відео', link: '#', date: '2025-09-12' },
+  { id: 3, title: 'Українська мова: Вправи', type: 'Документ', link: '#', date: '2025-09-15' },
+  { id: 4, title: 'Математика: Геометрія', type: 'Презентація', link: '#', date: '2025-09-18' }
 ];
 
 export default function StudentMaterials() {

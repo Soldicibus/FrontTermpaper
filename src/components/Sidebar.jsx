@@ -67,16 +67,16 @@ export default function Sidebar() {
           <Link to="/auth" onClick={closeSidebar}>
             Авторизація
           </Link>
-          <Link to="/teachers" onClick={closeSidebar}>
+          <Link to="/teacher/classes" onClick={closeSidebar}>
             Для вчителів
           </Link>
           <Link to="/student/dashboard" onClick={closeSidebar}>
             Для учнів
           </Link>
-          <Link to="/parents" onClick={closeSidebar}>
+          <Link to="/parent/overview" onClick={closeSidebar}>
             Для батьків
           </Link>
-          <Link to="/cabinet" style={{ marginTop: "240%" }} onClick={closeSidebar}>
+          <Link to="/cabinet" style={{ marginTop: "34vw" }} onClick={closeSidebar}>
             Особистий кабінет
           </Link>
         </nav>
