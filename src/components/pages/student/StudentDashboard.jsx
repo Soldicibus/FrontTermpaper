@@ -4,9 +4,11 @@ import StudentJournal from "./StudentJournal";
 import StudentHomework from "./StudentHomework";
 import StudentSchedule from "./StudentSchedule";
 import StudentMaterials from "./StudentMaterials";
+import { useStudents } from "../../../hooks/useStudents";
 
 export default function StudentDashboard() {
   const [tab, setTab] = useState("journal");
+  const { data: students, isLoading } = useStudents();
 
   return (
     <main className="main">
@@ -14,17 +16,39 @@ export default function StudentDashboard() {
         <h1>Кабінет учня</h1>
       </div>
 
+      <div className="main__content">
+        <div className="card small">
+          {isLoading ? (
+            <div>Завантаження інформації учнів...</div>
+          ) : (
+            <div>Загалом учнів у системі: {students?.length ?? 0}</div>
+          )}
+        </div>
+      </div>
+
       <div className="tabs">
-        <button onClick={() => setTab("journal")} className={tab === "journal" ? "active" : ""}>
+        <button
+          onClick={() => setTab("journal")}
+          className={tab === "journal" ? "active" : ""}
+        >
           Журнал
         </button>
-        <button onClick={() => setTab("homework")} className={tab === "homework" ? "active" : ""}>
+        <button
+          onClick={() => setTab("homework")}
+          className={tab === "homework" ? "active" : ""}
+        >
           Домашні
         </button>
-        <button onClick={() => setTab("schedule")} className={tab === "schedule" ? "active" : ""}>
+        <button
+          onClick={() => setTab("schedule")}
+          className={tab === "schedule" ? "active" : ""}
+        >
           Розклад
         </button>
-        <button onClick={() => setTab("materials")} className={tab === "materials" ? "active" : ""}>
+        <button
+          onClick={() => setTab("materials")}
+          className={tab === "materials" ? "active" : ""}
+        >
           Матеріали
         </button>
       </div>

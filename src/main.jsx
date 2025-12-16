@@ -11,11 +11,15 @@ import ParentOverview from "./components/pages/parent/ParentOverview";
 import TeacherClasses from "./components/pages/teacher/TeacherClasses";
 import TeacherClassView from "./components/pages/teacher/TeacherClassView";
 import AdminPanel from "./components/pages/admin/AdminPanel";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+
+// initialize a single client for the app
+const queryClient = new QueryClient();
 
 function App() {
   return (
     <BrowserRouter>
-
       <Sidebar />
 
       <Routes>
@@ -29,10 +33,14 @@ function App() {
         <Route path="/cabinet" element={<Cabinet />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
-
     </BrowserRouter>
   );
 }
 
-createRoot(document.getElementById("app")).render(<App />);
+createRoot(document.getElementById("app")).render(
+  <QueryClientProvider client={queryClient}>
+    <App />
+    <ReactQueryDevtools initialIsOpen={false} />
+  </QueryClientProvider>
+);
 export default App;

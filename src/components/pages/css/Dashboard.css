@@ -185,6 +185,7 @@
 }
 .lesson-subject {
   font-weight: 700;
+  text-align: center;
 }
 .materials-grid {
   display: grid;
