@@ -17,9 +17,6 @@ export default function Auth() {
                     <br />
                     <button type="submit">Увійти</button>
                 </form>
-                <p className="auth__footer">
-                    Немає облікового запису? <a href="/register">Зареєструватися</a>
-                </p>
             </div>
         </main>
     );

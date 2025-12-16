@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import "./css/Mainpage.css";
+import { Link } from "react-router-dom";
 
 export default function Mainpage() {
     useEffect(() => {
@@ -27,7 +28,7 @@ export default function Mainpage() {
             <div className="main__header">
                 <h1 className="main__title">Навчасно</h1>
                 <p className="main__subtitle">Освітня екосистема для учнів, вчителів та батьків</p>
-                <p className="main__subtitle">Підтримка школи у цифровому форматі</p>
+                <p className="main__subtitle">Підтримка школи у цифровому форматі. Ні бюрократії!</p>
                 <p className="main__subtitle">Натхнення для навчання кожного дня</p>
             </div>
 
@@ -35,19 +36,19 @@ export default function Mainpage() {
                 <div className="card student">
                     <h2>Учням</h2>
                     <p>Оцінки, розклад, домашні завдання</p>
-                    <button>Увійти</button>
+                    <Link to="/auth"><button>Увійти</button></Link>
                 </div>
 
                 <div className="card teacher">
                     <h2>Вчителям</h2>
                     <p>Журнали, класи, навчальні матеріали</p>
-                    <button>Увійти</button>
+                    <Link to="/auth"><button>Увійти</button></Link>
                 </div>
 
                 <div className="card parent">
                     <h2>Батькам</h2>
                     <p>Успішність та відвідування</p>
-                    <button>Увійти</button>
+                    <Link to="/auth"><button>Увійти</button></Link>
                 </div>
             </section>
 
