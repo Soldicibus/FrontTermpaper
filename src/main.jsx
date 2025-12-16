@@ -4,6 +4,9 @@ import React from "react";
 import Mainpage from "./components/pages/Mainpage";
 import Sidebar from "./components/Sidebar";
 import Auth from "./components/pages/Auth";
+import Cabinet from "./components/pages/Cabinet";
+import NotFound from "./components/pages/NotFound";
+import StudentDashboard from "./components/pages/student/StudentDashboard";
 
 function App() {
   return (
@@ -14,7 +17,9 @@ function App() {
       <Routes>
         <Route path="/auth" element={<Auth />} />
         <Route path="/" element={<Mainpage />} />
-        <Route path="*" element={<h1 style={{color:'white'}}>404 Not Found</h1>} />
+        <Route path="/student/dashboard" element={<StudentDashboard />} />
+        <Route path="/cabinet" element={<Cabinet />} />
+        <Route path="*" element={<NotFound />} />
       </Routes>
 
     </BrowserRouter>

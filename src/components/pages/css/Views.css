@@ -1,0 +1,99 @@
+/* Shared styles for DB-view-like pages */
+:root{
+  --primary: #00633d;
+  --accent: #4b9771;
+  --muted-bg: rgba(255,255,255,0.03);
+  --card-bg: white;
+  --fg: #000000;
+}
+.view {
+  padding: 36px 20px;
+  color: var(--fg);
+  max-width: 1100px;
+  margin: 0 auto 80px;
+}
+.view h1 { margin-top: 0; }
+
+/* Header area for a view with optional actions */
+.view__header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom: 18px;
+}
+.view__header .subtitle { opacity: 0.9; font-size: 0.95rem }
+.view-actions { display:flex; gap:8px; align-items:center }
+
+.table-wrap {
+  overflow: auto;
+  background: var(--muted-bg);
+  padding: 12px;
+  border-radius: 8px;
+}
+.view-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--fg);
+}
+.view-table th, .view-table td {
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+.view-table thead th {
+  background: rgba(255, 255, 255, 0.02);
+  font-weight: 600;
+}
+
+/* Panel / card used for quick stats, similar to Mainpage cards */
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.panel-card {
+  background: var(--card-bg);
+  color: #000;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+}
+.panel-card h3 { margin: 0 0 8px; font-size: 1rem }
+.panel-card p { margin: 0; color: #333 }
+
+/* Small utility link */
+.small-link {
+  margin-right: 10px;
+  color: #c3e6b6;
+  text-decoration: none;
+}
+.small-link:hover { text-decoration: underline }
+
+/* Buttons */
+.btn {
+  display:inline-block;
+  padding: 8px 12px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+.btn-primary { background: var(--accent); color: white }
+.btn-ghost { background: transparent; color: var(--fg); border: 1px solid rgba(255,255,255,0.06) }
+.btn:hover { opacity: 0.95 }
+
+/* Empty state */
+.empty-state { padding: 28px; background: rgba(255,255,255,0.02); border-radius: 10px; text-align:center }
+
+/* Responsive small tweaks */
+@media (max-width:700px) {
+  .view__header { flex-direction: column; align-items:flex-start }
+  .panel-grid { grid-template-columns: 1fr 1fr }
+  .feature, .panel-card { padding: 12px }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view-table { transition: none; }
+}

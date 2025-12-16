@@ -3,26 +3,6 @@ import "./css/Mainpage.css";
 import { Link } from "react-router-dom";
 
 export default function Mainpage() {
-    useEffect(() => {
-        const revealEls = document.querySelectorAll('.reveal');
-        if (!revealEls.length) return;
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    const el = entry.target;
-                    const delay = el.dataset.delay || '0s';
-                    el.style.setProperty('--delay', delay);
-                    el.classList.add('in-view');
-                    observer.unobserve(el);
-                }
-            });
-        }, { threshold: 0.15 });
-
-        revealEls.forEach(el => observer.observe(el));
-        return () => observer.disconnect();
-    }, []);
-
     return (
         <main className="main">
             <div className="main__header">
