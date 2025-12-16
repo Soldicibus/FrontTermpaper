@@ -13,19 +13,19 @@ export default function Mainpage() {
             </div>
 
             <section className="main__content">
-                <div className="card student">
+                <div className="cardy student">
                     <h2>Учням</h2>
                     <p>Оцінки, розклад, домашні завдання</p>
                     <Link to="/auth"><button>Увійти</button></Link>
                 </div>
 
-                <div className="card teacher">
+                <div className="cardy teacher">
                     <h2>Вчителям</h2>
                     <p>Журнали, класи, навчальні матеріали</p>
                     <Link to="/auth"><button>Увійти</button></Link>
                 </div>
 
-                <div className="card parent">
+                <div className="cardy parent">
                     <h2>Батькам</h2>
                     <p>Успішність та відвідування</p>
                     <Link to="/auth"><button>Увійти</button></Link>

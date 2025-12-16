@@ -27,21 +27,21 @@
   width: 90%;
   max-width: 900px;
 }
-.card {
+.cardy {
   background-color: white;
   color: #000;
   border-radius: 20px;
   padding: 24px;
   text-align: center;
 }
-.card h2 {
+.cardy h2 {
   margin-top: 0;
 }
-.card p {
+.cardy p {
   margin: 12px 0 20px;
   font-size: 0.95rem;
 }
-.card button {
+.cardy button {
   background-color: #4b9771;
   color: white;
   border: none;
@@ -51,19 +51,19 @@
   font-size: 0.9rem;
   cursor: pointer;
 }
-.card button:hover {
-  background-color: #8bdca2;
+.cardy button:hover {
+  background-color: #8bdca29d;
   transition: background-color 0.3s;
 }
-.card.student:hover {
+.cardy.student:hover {
   background-color: #ffebcc;
   transition: background-color 0.3s;
 }
-.card.teacher:hover {
+.cardy.teacher:hover {
   background-color: #cce5ff;
   transition: background-color 0.3s;
 }
-.card.parent:hover {
+.cardy.parent:hover {
   background-color: #d4edda;
   transition: background-color 0.3s;
 }
