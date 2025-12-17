@@ -1,18 +1,38 @@
 import React, { useState } from "react";
-
-const sample = [
-  { id: 1, subject: 'Фізика', title: '§5, задачі', due: '2025-09-20', teacher: 'Іваненко О.О.', desc: 'Розв’язати задачі з підручника стор. 45–47' },
-  { id: 2, subject: 'Українська мова', title: 'Вправи з граматики', due: '2025-09-21', teacher: 'Петренко О.С.', desc: 'Вправа 4, с. 33' },
-  { id: 3, subject: 'Математика', title: 'Домашнє завдання', due: '2025-09-22', teacher: 'Сидоренко І.В.', desc: 'Розв’язати рівняння з підручника с. 50–52' },
-];
+import { useHomework } from "../../../hooks/useStudents";
+import { getCurrentStudentId, getCurrentUserClass } from "../../../utils/auth";
 
 export default function StudentHomework() {
   const [openId, setOpenId] = useState(null);
+  const { data: homework, isLoading } = useHomework();
+  const studentId = getCurrentStudentId();
+  const studentClass = getCurrentUserClass();
+  let list = Array.isArray(homework) && homework.length ? homework : [];
+
+  // Filter homework relevant for current student (by studentId or by class)
+  if (studentId) {
+    list = list.filter(
+      (h) =>
+        (h.studentId && h.studentId === studentId) ||
+        (h.classId && `${h.classId}` === `${studentClass}`) ||
+        (h.class_c && h.class_c === studentClass)
+    );
+  }
+
+  if (!list.length && !isLoading) {
+    // keep previous placeholder behavior: empty state
+  }
 
   return (
     <div className="homework-grid">
-      {sample.map(h => (
-        <article key={h.id} className={`homework-card ${openId === h.id ? 'open' : ''}`} onClick={() => setOpenId(openId === h.id ? null : h.id)}>
+      {list.map((h) => (
+        <article
+          key={h.id}
+          className={`homework-card ${openId === h.id ? "open" : ""}`}
+          onClick={() =>
+            setOpenId(openId === h.id ? null : h.id)
+          }
+        >
           <header>
             <strong>{h.subject}</strong>
             <span className="hw-title">{h.title}</span>
@@ -29,7 +49,9 @@ export default function StudentHomework() {
         </article>
       ))}
 
-      {sample.length === 0 && <div className="empty-state">Немає домашніх завдань</div>}
+      {sample.length === 0 && (
+        <div className="empty-state">Немає домашніх завдань</div>
+      )}
     </div>
   );
 }

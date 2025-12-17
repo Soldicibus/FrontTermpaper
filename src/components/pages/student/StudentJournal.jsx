@@ -1,19 +1,14 @@
 import React from "react";
 import { useStudentMarks } from "../../../hooks/useStudents";
+import { getCurrentStudentId } from "../../../utils/auth";
 
 export default function StudentJournal() {
 
-  const studentId = 1;
+  const studentId = getCurrentStudentId();
   const { data: marksData, isLoading, error } = useStudentMarks(studentId);
 
-  const sample = [
-    { subject: 'Математика', date: '2025-09-12', mark: 10, status: 'Присутній' },
-    { subject: 'Українська мова', date: '2025-09-13', mark: null, status: 'Не присутній' },
-    { subject: 'Математика', date: '2025-09-19', mark: 9, status: 'Присутній' },
-    { subject: 'Фізика', date: '2025-09-20', mark: 8, status: 'Присутній' },
-  ];
-
-  const entries = Array.isArray(marksData) && marksData.length ? marksData : sample;
+  // marksData expected to be array of { subject, date, mark, status }
+  const entries = Array.isArray(marksData) && marksData.length ? marksData : [];
 
   const dates = Array.from(new Set(entries.map(e => e.date))).sort();
   const subjects = Array.from(new Set(entries.map(e => e.subject))).sort();
@@ -35,6 +30,7 @@ export default function StudentJournal() {
     <div className="card journal-card">
       {isLoading && <div className="loading">Завантаження...</div>}
       {error && <div className="error">Помилка завантаження даних</div>}
+      {!isLoading && entries.length === 0 && <div className="empty-state">Немає оцінок для цього учня</div>}
       <table className="journal-table">
         <thead>
           <tr>

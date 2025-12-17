@@ -1,10 +1,20 @@
-import React, { useEffect } from "react";
+import React from "react";
 import "./css/Mainpage.css";
+import { decodeToken } from '../../utils/jwt';
+import { useLogout } from "../../hooks/useStudents";
+import { useNavigate } from "react-router-dom";
 
 export default function Cabinet() {
-    useEffect(() => {
-        // Any side effects for the Cabinet page can be handled here
-    }, []);
+    const logout = useLogout();
+    const navigate = useNavigate();
+    const token = localStorage.getItem('accessToken');
+    const user = token ? decodeToken(token) : null;
+
+    const onLogout = () => {
+        logout();
+        navigate('/auth');
+    }
+
     return (
         <main className="main">
             <div className="main__header">
@@ -13,12 +23,12 @@ export default function Cabinet() {
             <div className="main__content">
                 <div className="card cabinet-info">
                     <h2>Інформація про користувача</h2>
-                    <p>Ім'я: TEMP</p>
-                    <p>Прізвище: TEMP</p>
-                    <p>По-батькові: TEMP</p>
-                    <p>Пошта: TEMP</p>
-                    <p>Телефон: TEMP</p>
-                    <button>Вийти</button>
+                    <p>Ім'я: {user?.name || user?.username || '—'}</p>
+                    <p>Прізвище: {user?.surname || '—'}</p>
+                    <p>По-батькові: {user?.patronym || '—'}</p>
+                    <p>Пошта: {user?.email || '—'}</p>
+                    <p>Телефон: {user?.phone || '—'}</p>
+                    <button onClick={onLogout}>Вийти</button>
                 </div>
             </div>
         </main>

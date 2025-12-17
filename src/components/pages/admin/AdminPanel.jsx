@@ -1,6 +1,10 @@
 import React from "react";
+import { useUsers, useClasses } from "../../../hooks/useStudents";
 
 export default function AdminPanel() {
+  const { data: users, isLoading } = useUsers();
+  const { data: classes } = useClasses();
+
   return (
     <main className="main">
       <div className="main__header">
@@ -10,6 +14,7 @@ export default function AdminPanel() {
       <div className="main__content">
         <div className="card">
           <h2>Користувачі</h2>
+          <p>{isLoading ? 'Завантаження...' : `Загалом: ${users?.length ?? 0}`}</p>
           <button>Керувати</button>
         </div>
 
@@ -20,6 +25,7 @@ export default function AdminPanel() {
 
         <div className="card">
           <h2>Класи</h2>
+          <p>{`Загалом: ${classes?.length ?? 0}`}</p>
           <button>Редагувати</button>
         </div>
       </div>

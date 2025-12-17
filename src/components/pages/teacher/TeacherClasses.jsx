@@ -1,6 +1,9 @@
 import React from "react";
+import { useTeachers } from "../../../hooks/useStudents";
 
 export default function TeacherClasses() {
+  const { data: teachers, isLoading, error } = useTeachers();
+
   return (
     <main className="main">
       <div className="main__header">
@@ -8,11 +11,15 @@ export default function TeacherClasses() {
       </div>
 
       <div className="main__content">
-        <div className="card">
-          <h2>7-Б клас</h2>
-          <p>Учнів: 28</p>
-          <button>Відкрити</button>
-        </div>
+        {isLoading && <div>Завантаження учителів...</div>}
+        {error && <div>Помилка завантаження</div>}
+        {!isLoading && Array.isArray(teachers) && teachers.map(t => (
+          <div className="card" key={t.id}>
+            <h2>{t.name || `${t.surname} ${t.name}`}</h2>
+            <p>Телефон: {t.phone || '—'}</p>
+            <button>Відкрити</button>
+          </div>
+        ))}
       </div>
     </main>
   );

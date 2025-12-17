@@ -4,11 +4,14 @@ import StudentJournal from "./StudentJournal";
 import StudentHomework from "./StudentHomework";
 import StudentSchedule from "./StudentSchedule";
 import StudentMaterials from "./StudentMaterials";
-import { useStudents } from "../../../hooks/useStudents";
+import { useStudents, useStudent } from "../../../hooks/useStudents";
+import { getCurrentStudentId } from "../../../utils/auth";
 
 export default function StudentDashboard() {
   const [tab, setTab] = useState("journal");
   const { data: students, isLoading } = useStudents();
+  const studentId = getCurrentStudentId();
+  const { data: currentStudent, isLoading: studentLoading } = useStudent(studentId);
 
   return (
     <main className="main">
@@ -22,6 +25,21 @@ export default function StudentDashboard() {
             <div>Завантаження інформації учнів...</div>
           ) : (
             <div>Загалом учнів у системі: {students?.length ?? 0}</div>
+          )}
+        </div>
+
+        <div className="card">
+          {studentLoading ? (
+            <div>Завантаження профілю учня...</div>
+          ) : currentStudent ? (
+            <div>
+              <h2>{currentStudent.name} {currentStudent.surname}</h2>
+              <p>Клас: {currentStudent.class_c || currentStudent.class || '—'}</p>
+              <p>Телефон: {currentStudent.phone || '—'}</p>
+              <p>Пошта: {currentStudent.email || '—'}</p>
+            </div>
+          ) : (
+            <div>Немає профілю учня (увійдіть або зв'яжіться з адміністратором)</div>
           )}
         </div>
       </div>
