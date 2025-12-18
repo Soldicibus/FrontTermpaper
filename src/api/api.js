@@ -2,49 +2,49 @@ const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:3000/api";
 const API_ROOT = import.meta.env.VITE_API_ROOT || "http://localhost:3000";
 
 function getAccessToken() {
-  return localStorage.getItem('accessToken');
+  return localStorage.getItem("accessToken");
 }
 
 async function fetchJSON(path, options = {}) {
   const headers = options.headers || {};
   const token = getAccessToken();
-  if (token) headers['Authorization'] = `Bearer ${token}`;
+  if (token) headers["Authorization"] = `Bearer ${token}`;
 
   // Determine whether this path should go to the API root (e.g. /auth) or to /api
-  const base = path.startsWith('/auth') ? API_ROOT : API_BASE;
+  const base = path.startsWith("/auth") ? API_ROOT : API_BASE;
   const res = await fetch(`${base}${path}`, { ...options, headers });
   const text = await res.text();
   try {
     const json = text ? JSON.parse(text) : {};
 
     // If unauthorized, attempt to refresh once (but don't do this for auth endpoints themselves)
-    if (res.status === 401 && !path.startsWith('/auth')) {
-      const refreshToken = localStorage.getItem('refreshToken');
-      console.warn('[api] received 401 for', path);
+    if (res.status === 401 && !path.startsWith("/auth")) {
+      const refreshToken = localStorage.getItem("refreshToken");
+      console.warn("[api] received 401 for", path);
       if (!refreshToken) {
-        console.warn('[api] no refresh token available');
+        console.warn("[api] no refresh token available");
         logout();
-        if (typeof window !== 'undefined') window.location.href = '/auth';
-        throw new Error('Unauthorized');
+        if (typeof window !== "undefined") window.location.href = "/auth";
+        throw new Error("Unauthorized");
       }
 
       // quick check if refresh token is already expired (inspect exp claim)
       try {
         const parsed = decodeToken(refreshToken);
         if (parsed && parsed.exp && parsed.exp * 1000 < Date.now()) {
-          console.warn('[api] refresh token already expired');
+          console.warn("[api] refresh token already expired");
           logout();
-          if (typeof window !== 'undefined') window.location.href = '/auth';
-          throw new Error('Refresh token expired');
+          if (typeof window !== "undefined") window.location.href = "/auth";
+          throw new Error("Refresh token expired");
         }
       } catch (e) {
-        console.warn('[api] failed to parse refresh token', e.message);
+        console.warn("[api] failed to parse refresh token", e.message);
       }
 
       // Attempt refresh using the auth root directly (avoid recursion through fetchJSON)
       const refreshRes = await fetch(`${API_ROOT}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refreshToken }),
       });
 
@@ -53,41 +53,55 @@ async function fetchJSON(path, options = {}) {
       try {
         refreshJson = refreshText ? JSON.parse(refreshText) : {};
       } catch (e) {
-        console.warn('[api] failed to parse refresh response', refreshText);
+        console.warn("[api] failed to parse refresh response", refreshText);
       }
 
       if (!refreshRes.ok) {
-        console.warn('[api] refresh request failed', refreshRes.status, refreshJson);
+        console.warn(
+          "[api] refresh request failed",
+          refreshRes.status,
+          refreshJson,
+        );
         logout();
-        if (typeof window !== 'undefined') window.location.href = '/auth';
-        throw new Error(refreshJson.error || 'Unauthorized');
+        if (typeof window !== "undefined") window.location.href = "/auth";
+        throw new Error(refreshJson.error || "Unauthorized");
       }
 
       // successful refresh
-      console.info('[api] refresh successful');
+      console.info("[api] refresh successful");
       if (refreshJson.accessToken) {
-        localStorage.setItem('accessToken', refreshJson.accessToken);
+        localStorage.setItem("accessToken", refreshJson.accessToken);
         // Retry the original request with the new access token
         const retryHeaders = { ...(options.headers || {}) };
-        retryHeaders['Authorization'] = `Bearer ${refreshJson.accessToken}`;
-        const retryRes = await fetch(`${base}${path}`, { ...options, headers: retryHeaders });
+        retryHeaders["Authorization"] = `Bearer ${refreshJson.accessToken}`;
+        const retryRes = await fetch(`${base}${path}`, {
+          ...options,
+          headers: retryHeaders,
+        });
         const retryText = await retryRes.text();
         const retryJson = retryText ? JSON.parse(retryText) : {};
         if (!retryRes.ok) {
-          console.warn('[api] retry after refresh failed', retryRes.status, retryJson);
+          console.warn(
+            "[api] retry after refresh failed",
+            retryRes.status,
+            retryJson,
+          );
           throw new Error(retryJson.error || retryText || retryRes.statusText);
         }
         return retryJson;
       }
       // fallback - no accessToken in refresh response
-      console.warn('[api] refresh response did not contain accessToken', refreshJson);
+      console.warn(
+        "[api] refresh response did not contain accessToken",
+        refreshJson,
+      );
       logout();
-      if (typeof window !== 'undefined') window.location.href = '/auth';
-      throw new Error('Unauthorized');
+      if (typeof window !== "undefined") window.location.href = "/auth";
+      throw new Error("Unauthorized");
     }
 
     if (!res.ok) {
-      console.warn('[api] request failed', path, res.status, json);
+      console.warn("[api] request failed", path, res.status, json);
       throw new Error(json.error || text || res.statusText);
     }
     return json;
@@ -98,131 +112,197 @@ async function fetchJSON(path, options = {}) {
 }
 
 export function logout() {
-  localStorage.removeItem('accessToken');
-  localStorage.removeItem('refreshToken');
+  localStorage.removeItem("accessToken");
+  localStorage.removeItem("refreshToken");
 }
 
 // Students
-export const getStudents = () => fetchJSON(`/students`).then(r => r.students || []);
-export const getStudentById = (id) => fetchJSON(`/students/${id}`).then(r => r.student || null);
-export const getStudentMarks = (studentId, fromDate, toDate) => {
+export const getStudents = async () =>
+  await fetchJSON(`/students`).then((r) => r.students || []);
+export const getStudentById = async (id) =>
+  await fetchJSON(`/students/${id}`).then((r) => r.student || null);
+export const getStudentMarks = async (studentId, fromDate, toDate) => {
   const params = new URLSearchParams();
-  if (studentId) params.set('studentId', studentId);
-  if (fromDate) params.set('fromDate', fromDate);
-  if (toDate) params.set('toDate', toDate);
-  return fetchJSON(`/students/marks?${params.toString()}`).then(r => r.students || []);
+  if (studentId) params.set("studentId", studentId);
+  if (fromDate) params.set("fromDate", fromDate);
+  if (toDate) params.set("toDate", toDate);
+  return await fetchJSON(`/students/marks?${params.toString()}`).then(
+    (r) => r.students || [],
+  );
 };
-export const getStudentDayPlan = (studentId, fromDate, toDate) => {
+export const getStudentDayPlan = async (studentId, fromDate, toDate) => {
   const params = new URLSearchParams();
-  if (studentId) params.set('studentId', studentId);
-  if (fromDate) params.set('fromDate', fromDate);
-  if (toDate) params.set('toDate', toDate);
-  return fetchJSON(`/students/day-plan?${params.toString()}`).then(r => r.day_plan || []);
+  if (studentId) params.set("studentId", studentId);
+  if (fromDate) params.set("fromDate", fromDate);
+  if (toDate) params.set("toDate", toDate);
+  return await fetchJSON(`/students/day-plan?${params.toString()}`).then(
+    (r) => r.day_plan || [],
+  );
 };
-export const getStudentGradesAndAbsences = (studentId, startDate, endDate) => {
+export const getStudentGradesAndAbsences = async (
+  studentId,
+  startDate,
+  endDate,
+) => {
   const params = new URLSearchParams();
-  if (studentId) params.set('studentId', studentId);
-  if (startDate) params.set('startDate', startDate);
-  if (endDate) params.set('endDate', endDate);
-  return fetchJSON(`/students/grades-and-absences?${params.toString()}`).then(r => r.students || []);
+  if (studentId) params.set("studentId", studentId);
+  if (startDate) params.set("startDate", startDate);
+  if (endDate) params.set("endDate", endDate);
+  return await fetchJSON(
+    `/students/grades-and-absences?${params.toString()}`,
+  ).then((r) => r.students || []);
 };
-export const getStudentRanking = () => fetchJSON('/students/ranking').then(r => r.students || []);
-export const getStudentsByParent = (parentId) => fetchJSON(`/students/by-parent/${parentId}`).then(r => r.students || []);
+export const getStudentRanking = async () =>
+  await fetchJSON("/students/ranking").then((r) => r.students || []);
+export const getStudentsByParent = async (parentId) =>
+  await fetchJSON(`/students/by-parent/${parentId}`).then(
+    (r) => r.students || [],
+  );
 
-export const addStudent = (payload) => fetchJSON('/students', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).then(r => r.newStudent);
-export const updateStudent = (payload) => fetchJSON('/students', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).then(r => r.message);
-export const deleteStudent = (id) => fetchJSON(`/students/${id}`, { method: 'DELETE' }).then(r => r.message);
+export const addStudent = async (payload) =>
+  await fetchJSON("/students", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }).then((r) => r.newStudent);
+export const updateStudent = async (payload) =>
+  await fetchJSON("/students", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }).then((r) => r.message);
+export const deleteStudent = async (id) =>
+  await fetchJSON(`/students/${id}`, { method: "DELETE" }).then(
+    (r) => r.message,
+  );
 
 // Teachers
-export const getTeachers = () => fetchJSON('/teacher').then(r => r.teachers || r);
-export const getTeacherById = (id) => fetchJSON(`/teacher/${id}`).then(r => r.teacher || null);
+export const getTeachers = async () =>
+  await fetchJSON("/teacher").then((r) => r.teachers || r);
+export const getTeacherById = async (id) =>
+  await fetchJSON(`/teacher/${id}`).then((r) => r.teacher || null);
 
 // Parents
-export const getParents = () => fetchJSON('/parents').then(r => r.parents || r);
-export const getParentById = (id) => fetchJSON(`/parents/${id}`).then(r => r.parent || null);
+export const getParents = async () =>
+  await fetchJSON("/parents").then((r) => r.parents || r);
+export const getParentById = async (id) =>
+  await fetchJSON(`/parents/${id}`).then((r) => r.parent || null);
 
 // Users
-export const getUsers = () => fetchJSON('/users').then(r => r.users || r);
-export const getUserById = (id) => fetchJSON(`/users/${id}`).then(r => r.user || null);
-export const getUserData = (id) => {
-  if (!id) return Promise.reject(new Error('id required'));
-  return fetchJSON(`/users/${id}/data`).then(r => r.userData || r);
+export const getUsers = async () =>
+  await fetchJSON("/users").then((r) => r.users || r);
+export const getUserById = async (id) =>
+  await fetchJSON(`/users/${id}`).then((r) => r.user || null);
+export const getUserData = async (id) => {
+  if (!id) return Promise.reject(new Error("id required"));
+  return await fetchJSON(`/users/${id}/data`).then((r) => r.userData || r);
 };
 
 // Auth
 export const login = async ({ username, email, password }) => {
-  const res = await fetchJSON('/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username, email, password }) });
+  const res = await fetchJSON("/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username, email, password }),
+  });
   // Store tokens
-  if (res.accessToken) localStorage.setItem('accessToken', res.accessToken);
-  if (res.refreshToken) localStorage.setItem('refreshToken', res.refreshToken);
+  if (res.accessToken) localStorage.setItem("accessToken", res.accessToken);
+  if (res.refreshToken) localStorage.setItem("refreshToken", res.refreshToken);
   return res;
 };
 
-export const refreshToken = (refreshToken) => fetchJSON('/auth/refresh', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ refreshToken }) });
-export const getMe = () => fetchJSON('/auth/me').then(r => r.user || null);
+export const refreshToken = async (refreshToken) =>
+  await fetchJSON("/auth/refresh", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refreshToken }),
+  });
+export const getMe = async () =>
+  await fetchJSON("/auth/me").then((r) => r.user || null);
 
 // Homework, Materials, Timetables, Classes
-export const getHomework = () => fetchJSON('/homework').then(r => r.homework || r);
-export const getHomeworkByStudentOrClass = (params = {}) => {
+export const getHomework = async () =>
+  await fetchJSON("/homework").then((r) => r.homework || r);
+export const getHomeworkByStudentOrClass = async (params = {}) => {
   const qs = new URLSearchParams(params).toString();
-  return fetchJSON(`/homework/by-student-or-class?${qs}`).then(r => r.homework || r);
+  return await fetchJSON(`/homework/by-student-or-class?${qs}`).then(
+    (r) => r.homework || r,
+  );
 };
 export const getHomeworkByStudentId = (studentId) => {
   if (!studentId) return Promise.resolve([]);
-  return fetchJSON(`/homework/by-student-or-class/${studentId}`).then(r => r.homework || r || []);
+  return fetchJSON(`/homework/by-student-or-class/${studentId}`).then(
+    (r) => r.homework || r || [],
+  );
 };
 
-export const getHomeworkForTomorrow = () => fetchJSON('/homework/for-tomorrow').then(r => r.homework || r || []);
+export const getHomeworkForTomorrow = () =>
+  fetchJSON("/homework/for-tomorrow").then((r) => r.homework || r || []);
 
-export const getMaterials = () => fetchJSON('/materials').then(r => r.materials || r);
-export const getMaterialById = (id) => fetchJSON(`/materials/${id}`).then(r => r.material || null);
+export const getMaterials = async () =>
+  await fetchJSON("/materials").then((r) => r.materials || r);
+export const getMaterialById = async (id) =>
+  await fetchJSON(`/materials/${id}`).then((r) => r.material || null);
 
-export const getTimetables = () => fetchJSON('/timetables').then(r => r.timetables || r);
+export const getTimetables = () =>
+  fetchJSON("/timetables").then((r) => r.timetables || r);
 export const getWeeklyTimetableByClassName = (className) => {
   if (!className) return Promise.resolve([]);
   const encoded = encodeURIComponent(className);
-  return fetchJSON(`/timetables/week/${encoded}`).then(r => r.rows || r.timetable || r || []);
+  return fetchJSON(`/timetables/week/${encoded}`).then(
+    (r) => r.rows || r.timetable || r || [],
+  );
 };
 
 export const getWeeklyTimetableById = (timetableId) => {
   if (!timetableId) return Promise.resolve([]);
-  return fetchJSON(`/timetables/week/${timetableId}`).then(r => r.rows || r.timetable || r || []);
+  return fetchJSON(`/timetables/week/${timetableId}`).then(
+    (r) => r.rows || r.timetable || r || [],
+  );
 };
 
 export const getTimetableByStudentId = (studentId) => {
   if (!studentId) return Promise.resolve([]);
-  return fetchJSON(`/timetables/student/${studentId}`).then(r => r.timetable || r || []);
+  return fetchJSON(`/timetables/student/${studentId}`).then(
+    (r) => r.timetable || r || [],
+  );
 };
 
-export const getClasses = () => fetchJSON('/classes').then(r => r.classes || r);
-export const getClassById = (id) => fetchJSON(`/classes/${id}`).then(r => r.class || null);
+export const getClasses = async () =>
+  await fetchJSON("/classes").then((r) => r.classes || r);
+export const getClassById = async (id) =>
+  await fetchJSON(`/classes/${id}`).then((r) => r.class || null);
 
 // Roles
-export const getRolesByUserId = (id) => {
-  if (!id) return Promise.reject(new Error('id required'));
-  return fetchJSON(`/userroles/role/${id}`).then(r => r.roles || r);
+export const getRolesByUserId = async (id) => {
+  if (!id) return Promise.reject(new Error("id required"));
+  return await fetchJSON(`/userroles/role/${id}`).then((r) => r.roles || r);
 };
 
-export const getJournalByStudent = (studentId) => {
-  if (!studentId) return Promise.resolve([]);
-  return fetchJSON(`/journals/student/${studentId}`)
-    .then(r => r.entries || [])
-    .catch(err => {
-      console.warn('[api] getJournalByStudent failed', err.message || err);
+export const getJournalByStudent = async (studentId) => {
+  if (!studentId) return await Promise.resolve([]);
+  return await fetchJSON(`/journals/student/${studentId}`)
+    .then((r) => r.entries || [])
+    .catch((err) => {
+      console.warn("[api] getJournalByStudent failed", err.message || err);
       return [];
     });
 };
-export const getStudentMarks7d = (studentId) => {
-  if (!studentId) return Promise.resolve([]);
-  return fetchJSON(`/studentdata/journal/${studentId}`).then(r => r.marks || r).catch(err => {
-    console.warn('[api] getStudentMarks7d failed', err.message || err);
-    return [];
-  });
+export const getStudentMarks7d = async (studentId) => {
+  if (!studentId) return await Promise.resolve([]);
+  return await fetchJSON(`/studentdata/journal/${studentId}`)
+    .then((r) => r.marks || r)
+    .catch((err) => {
+      console.warn("[api] getStudentMarks7d failed", err.message || err);
+      return [];
+    });
 };
 export const getStudentAttendanceReport = (studentId, startDate, endDate) => {
   const params = new URLSearchParams();
-  if (studentId) params.set('studentId', studentId);
-  if (startDate) params.set('startDate', startDate);
-  if (endDate) params.set('endDate', endDate);
-  return fetchJSON(`/students/attendance?${params.toString()}`).then(r => r.report || r || []);
- };
+  if (studentId) params.set("studentId", studentId);
+  if (startDate) params.set("startDate", startDate);
+  if (endDate) params.set("endDate", endDate);
+  return fetchJSON(`/students/attendance?${params.toString()}`).then(
+    (r) => r.report || r || [],
+  );
+};
