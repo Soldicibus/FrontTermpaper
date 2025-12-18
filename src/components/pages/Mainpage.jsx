@@ -28,7 +28,7 @@ export default function Mainpage() {
 
                 <div className="cardy parent">
                     <h2>Батькам</h2>
-                    <p>Успішність та відвідування</p>
+                    <p>Успішність та відвідування ваших дітей</p>
                     <Link to="/auth"><button>Увійти</button></Link>
                 </div>
             </section>

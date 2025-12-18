@@ -105,6 +105,14 @@ export function useHomework() {
   return useQuery({ queryKey: ['homework'], queryFn: api.getHomework });
 }
 
+export function useHomeworkByStudent(studentId, opts = {}) {
+  return useQuery({ queryKey: ['homework', 'by-student', studentId], queryFn: () => api.getHomeworkByStudentId(studentId), enabled: !!studentId, ...opts });
+}
+
+export function useHomeworkForTomorrow(opts = {}) {
+  return useQuery({ queryKey: ['homework', 'for-tomorrow'], queryFn: () => api.getHomeworkForTomorrow(), ...opts });
+}
+
 export function useMaterials() {
   return useQuery({ queryKey: ['materials'], queryFn: api.getMaterials });
 }
@@ -123,4 +131,20 @@ export function useClass(id) {
 
 export function useStudentMarks7d(studentId, opts = {}) {
   return useQuery({ queryKey: ['student', studentId, 'marks-7d'], queryFn: () => api.getStudentMarks7d(studentId), enabled: !!studentId, ...opts });
+}
+
+export function useWeeklyTimetable(className, opts = {}) {
+  return useQuery({ queryKey: ['timetable', 'week', className], queryFn: () => api.getWeeklyTimetableByClassName(className), enabled: !!className, ...opts });
+}
+
+export function useWeeklyTimetableById(timetableId, opts = {}) {
+  return useQuery({ queryKey: ['timetable', 'week', 'id', timetableId], queryFn: () => api.getWeeklyTimetableById(timetableId), enabled: !!timetableId, ...opts });
+}
+
+export function useTimetableByStudent(studentId, opts = {}) {
+  return useQuery({ queryKey: ['timetable', 'by-student', studentId], queryFn: () => api.getTimetableByStudentId(studentId), enabled: !!studentId, ...opts });
+}
+
+export function useStudentAttendanceReport(studentId, startDate, endDate, opts = {}) {
+  return useQuery({ queryKey: ['student', studentId, 'attendance-report', startDate, endDate], queryFn: () => api.getStudentAttendanceReport(studentId, startDate, endDate), enabled: !!studentId, ...opts });
 }

@@ -4,7 +4,6 @@ import StudentJournal from "./StudentJournal";
 import StudentHomework from "./StudentHomework";
 import StudentSchedule from "./StudentSchedule";
 import StudentMaterials from "./StudentMaterials";
-import StudentDayPlan from "./StudentDayPlan";
 import StudentGradesAndAbsences from "./StudentGradesAndAbsences";
 import StudentRanking from "./StudentRanking";
 import { useStudents, useStudent, useUserData, useClass, useUserRoles } from "../../../hooks/useStudents";
@@ -138,12 +137,6 @@ export default function StudentDashboard() {
           className={tab === "materials" ? "active" : ""}
         >
           Матеріали
-        </button>
-        <button
-          onClick={() => setTab("dayplan")}
-          className={tab === "dayplan" ? "active" : ""}
-        >
-          План дня
         </button>
         <button
           onClick={() => setTab("grades")}

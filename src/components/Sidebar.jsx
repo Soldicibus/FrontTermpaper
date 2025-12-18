@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getCurrentUser } from '../utils/auth';
+import { getCurrentUser, isAuthenticated } from '../utils/auth';
 import { useUserRoles } from '../hooks/useStudents';
 import "./pages/css/Sidebar.css";
 
@@ -83,9 +83,15 @@ export default function Sidebar() {
         </div>
 
         <nav>
-          <Link to="/auth" onClick={closeSidebar}>
-            Авторизація
-          </Link>
+          {isAuthenticated() ? (
+            <Link to="/cabinet" onClick={closeSidebar}>
+              Кабінет
+            </Link>
+          ) : (
+            <Link to="/auth" onClick={closeSidebar}>
+              Авторизація
+            </Link>
+          )}
           {hasRole('teacher') && (
             <Link to="/teacher/classes" onClick={closeSidebar}>
               Для вчителів
@@ -106,9 +112,6 @@ export default function Sidebar() {
               Панель адміністратора
             </Link>
           )}
-          <Link to="/cabinet" style={{ marginTop: "34vw" }} onClick={closeSidebar}>
-            Особистий кабінет
-          </Link>
         </nav>
       </aside>
     </>

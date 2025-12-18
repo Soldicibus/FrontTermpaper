@@ -44,7 +44,7 @@ export default function StudentJournal({ studentId: propStudentId }) {
 
           // Render days as columns with date headers aligned horizontally
           return (
-            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
+            <>
               {keys.map((k) => {
                 const dayEntries = groups[k];
                 // group entries by subject name to avoid duplicated subject listings
@@ -62,11 +62,11 @@ export default function StudentJournal({ studentId: propStudentId }) {
                 const otherSubjects = subjectKeys.slice(1).map(s => ({ name: s, items: subjectGroups[s] }));
                 
                 return (
-                  <div key={k} style={{ minWidth: 240, maxWidth: 320, flex: '0 0 260px' }}>
+                  <div key={k} className="journal-column">
                     <div style={{ fontWeight: 700, marginBottom: 8, textAlign: 'center' }}>{k}</div>
 
                     {/* main subject card (first subject of the day) */}
-                    <div style={{ border: '1px solid #ddd', padding: 12, borderRadius: 6, marginBottom: 8 }}>
+                    <div className="journal-subject-card">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
                           <div style={{ fontSize: 16, fontWeight: 600 }}>{mainSubjectName}</div>
@@ -88,11 +88,11 @@ export default function StudentJournal({ studentId: propStudentId }) {
                     </div>
 
                     {otherSubjects.length > 0 && (
-                      <div>
+                      <div className="journal-other-subjects">
                         <div style={{ color: '#666', marginBottom: 6 }}>Інші предмети</div>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
                           {otherSubjects.map((o, idx) => (
-                            <div key={idx} style={{ border: '1px solid #eee', padding: 8, borderRadius: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div key={idx} className="subject-card">
                               <div style={{ fontSize: 14 }}>
                                 <div>{o.name}</div>
                                 <div style={{ color: '#666', fontSize: 12 }}>{o.items.length > 1 ? `${o.items.length} оцінки` : formatTime(o.items[0]?.lesson_date || o.items[0]?.date)}</div>
@@ -106,7 +106,7 @@ export default function StudentJournal({ studentId: propStudentId }) {
                   </div>
                 );
               })}
-            </div>
+            </>
           );
         })()}
       </div>

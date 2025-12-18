@@ -167,11 +167,32 @@ export const getHomeworkByStudentOrClass = (params = {}) => {
   const qs = new URLSearchParams(params).toString();
   return fetchJSON(`/homework/by-student-or-class?${qs}`).then(r => r.homework || r);
 };
+export const getHomeworkByStudentId = (studentId) => {
+  if (!studentId) return Promise.resolve([]);
+  return fetchJSON(`/homework/by-student-or-class/${studentId}`).then(r => r.homework || r || []);
+};
+
+export const getHomeworkForTomorrow = () => fetchJSON('/homework/for-tomorrow').then(r => r.homework || r || []);
 
 export const getMaterials = () => fetchJSON('/materials').then(r => r.materials || r);
 export const getMaterialById = (id) => fetchJSON(`/materials/${id}`).then(r => r.material || null);
 
 export const getTimetables = () => fetchJSON('/timetables').then(r => r.timetables || r);
+export const getWeeklyTimetableByClassName = (className) => {
+  if (!className) return Promise.resolve([]);
+  const encoded = encodeURIComponent(className);
+  return fetchJSON(`/timetables/week/${encoded}`).then(r => r.rows || r.timetable || r || []);
+};
+
+export const getWeeklyTimetableById = (timetableId) => {
+  if (!timetableId) return Promise.resolve([]);
+  return fetchJSON(`/timetables/week/${timetableId}`).then(r => r.rows || r.timetable || r || []);
+};
+
+export const getTimetableByStudentId = (studentId) => {
+  if (!studentId) return Promise.resolve([]);
+  return fetchJSON(`/timetables/student/${studentId}`).then(r => r.timetable || r || []);
+};
 
 export const getClasses = () => fetchJSON('/classes').then(r => r.classes || r);
 export const getClassById = (id) => fetchJSON(`/classes/${id}`).then(r => r.class || null);
@@ -198,3 +219,10 @@ export const getStudentMarks7d = (studentId) => {
     return [];
   });
 };
+export const getStudentAttendanceReport = (studentId, startDate, endDate) => {
+  const params = new URLSearchParams();
+  if (studentId) params.set('studentId', studentId);
+  if (startDate) params.set('startDate', startDate);
+  if (endDate) params.set('endDate', endDate);
+  return fetchJSON(`/students/attendance?${params.toString()}`).then(r => r.report || r || []);
+ };

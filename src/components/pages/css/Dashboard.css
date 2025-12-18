@@ -28,7 +28,7 @@
 }
 .tabs button {
   background: transparent;
-  width: 10vw;
+  width: 12vw;
   font-size: medium;
   border: 1px solid rgba(255, 255, 255, 0.06);
   color: #fff;
@@ -105,11 +105,11 @@
   overflow: hidden;
   transition: max-height 320ms ease, padding 320ms ease;
 }
-.homework-card.open {
+.homework-card[aria-expanded="true"] {
   transform: translateY(-3px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
 }
-.homework-card.open .hw-body {
+.homework-card[aria-expanded="true"] .hw-body {
   max-height: 240px;
   padding-top: 10px;
 }
@@ -130,7 +130,70 @@
   color: var(--fg);
   border: 1px solid rgba(255, 255, 255, 0.06);
 }
+.attendance-summary {
+  width: auto;
+  border-collapse: collapse;
+}
+.attendance-summary th,
+.attendance-summary td {
+  padding: 6px 10px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+}
+.attendance-status {
+  margin-top: 8px;
+  font-size: 0.95rem;
+}
+.attendance-ok {
+  color: #1a7f37; /* green */
+  font-weight: 600;
+}
+.attendance-bad {
+  color: #c62828; /* red */
+  font-weight: 600;
+}
 
+/* Journal layout improvements */
+.journal-card {
+  padding: 16px;
+}
+.journal-by-date {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+.journal-by-date::-webkit-scrollbar {
+  height: 10px;
+}
+.journal-by-date::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 8px;
+}
+.journal-column {
+  min-width: 280px;
+  max-width: 360px;
+  flex: 0 0 320px;
+  scroll-snap-align: start;
+}
+.journal-subject-card {
+  border: 1px solid #ddd;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  background: #ffffff38;
+}
+.journal-other-subjects .subject-card {
+  border: 1px solid #eee;
+  padding: 8px;
+  border-radius: 6px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 .card.schedule-card {
   padding: 22px;
   background: var(--muted-bg);
