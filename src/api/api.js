@@ -236,34 +236,34 @@ export const getHomeworkByStudentId = (studentId) => {
   );
 };
 
-export const getHomeworkForTomorrow = () =>
-  fetchJSON("/homework/for-tomorrow").then((r) => r.homework || r || []);
+export const getHomeworkForTomorrow = async () =>
+  await fetchJSON("/homework/for-tomorrow").then((r) => r.homework || r || []);
 
 export const getMaterials = async () =>
   await fetchJSON("/materials").then((r) => r.materials || r);
 export const getMaterialById = async (id) =>
   await fetchJSON(`/materials/${id}`).then((r) => r.material || null);
 
-export const getTimetables = () =>
-  fetchJSON("/timetables").then((r) => r.timetables || r);
-export const getWeeklyTimetableByClassName = (className) => {
-  if (!className) return Promise.resolve([]);
+export const getTimetables = async () =>
+  await fetchJSON("/timetables").then((r) => r.timetables || r);
+export const getWeeklyTimetableByClassName = async (className) => {
+  if (!className) return await Promise.resolve([]);
   const encoded = encodeURIComponent(className);
-  return fetchJSON(`/timetables/week/${encoded}`).then(
+  return await fetchJSON(`/timetables/week/${encoded}`).then(
     (r) => r.rows || r.timetable || r || [],
   );
 };
 
-export const getWeeklyTimetableById = (timetableId) => {
-  if (!timetableId) return Promise.resolve([]);
-  return fetchJSON(`/timetables/week/${timetableId}`).then(
+export const getWeeklyTimetableById = async (timetableId) => {
+  if (!timetableId) return await Promise.resolve([]);
+  return await fetchJSON(`/timetables/week/${timetableId}`).then(
     (r) => r.rows || r.timetable || r || [],
   );
 };
 
-export const getTimetableByStudentId = (studentId) => {
-  if (!studentId) return Promise.resolve([]);
-  return fetchJSON(`/timetables/student/${studentId}`).then(
+export const getTimetableByStudentId = async (studentId) => {
+  if (!studentId) return await Promise.resolve([]);
+  return await fetchJSON(`/timetables/student/${studentId}`).then(
     (r) => r.timetable || r || [],
   );
 };
@@ -297,12 +297,16 @@ export const getStudentMarks7d = async (studentId) => {
       return [];
     });
 };
-export const getStudentAttendanceReport = (studentId, startDate, endDate) => {
+export const getStudentAttendanceReport = async (
+  studentId,
+  startDate,
+  endDate,
+) => {
   const params = new URLSearchParams();
   if (studentId) params.set("studentId", studentId);
   if (startDate) params.set("startDate", startDate);
   if (endDate) params.set("endDate", endDate);
-  return fetchJSON(`/students/attendance?${params.toString()}`).then(
+  return await fetchJSON(`/students/attendance?${params.toString()}`).then(
     (r) => r.report || r || [],
   );
 };
