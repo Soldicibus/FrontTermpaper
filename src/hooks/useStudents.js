@@ -60,6 +60,14 @@ export function useUser(id) {
   return useQuery({ queryKey: ['user', id], queryFn: () => api.getUserById(id), enabled: !!id });
 }
 
+export function useUserData(id, opts = {}) {
+  return useQuery({ queryKey: ['user-data', id], queryFn: () => api.getUserData(id), enabled: !!id, staleTime: 1000 * 60 * 5, ...opts });
+}
+
+export function useUserRoles(id, opts = {}) {
+  return useQuery({ queryKey: ['user-roles', id], queryFn: () => api.getRolesByUserId(id), enabled: !!id, staleTime: 1000 * 60 * 5, ...opts });
+}
+
 // Auth
 export function useLogin() {
   const qc = useQueryClient();

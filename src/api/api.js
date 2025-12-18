@@ -129,6 +129,10 @@ export const getParentById = (id) => fetchJSON(`/parents/${id}`).then(r => r.par
 // Users
 export const getUsers = () => fetchJSON('/users').then(r => r.users || r);
 export const getUserById = (id) => fetchJSON(`/users/${id}`).then(r => r.user || null);
+export const getUserData = (id) => {
+  if (!id) return Promise.reject(new Error('id required'));
+  return fetchJSON(`/users/${id}/data`).then(r => r.userData || r);
+};
 
 // Auth
 export const login = async ({ username, email, password }) => {
@@ -156,3 +160,9 @@ export const getTimetables = () => fetchJSON('/timetables').then(r => r.timetabl
 
 export const getClasses = () => fetchJSON('/classes').then(r => r.classes || r);
 export const getClassById = (id) => fetchJSON(`/classes/${id}`).then(r => r.class || null);
+
+// Roles
+export const getRolesByUserId = (id) => {
+  if (!id) return Promise.reject(new Error('id required'));
+  return fetchJSON(`/userroles/role/${id}`).then(r => r.roles || r);
+};
