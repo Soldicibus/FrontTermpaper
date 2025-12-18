@@ -1,63 +1,152 @@
 import React from "react";
-import { useStudentMarks } from "../../../hooks/useStudents";
-import { getCurrentStudentId } from "../../../utils/auth";
+import { useStudentMarks7d } from "../../../hooks/useStudents";
+import { getCurrentStudentId } from '../../../utils/auth';
 
-export default function StudentJournal() {
+function formatDate(value) {
+  if (!value) return '—';
+  try {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return String(value);
+    return d.toLocaleString('uk-UA', { year: 'numeric', month: '2-digit', day: '2-digit', hour: d.getHours() ? '2-digit' : undefined, minute: d.getMinutes() ? '2-digit' : undefined });
+  } catch (e) {
+    return String(value);
+  }
+}
 
-  const studentId = getCurrentStudentId();
-  const { data: marksData, isLoading, error } = useStudentMarks(studentId);
+export default function StudentJournal({ studentId: propStudentId }) {
+  const studentId = propStudentId || getCurrentStudentId();
+  const { data: marks7d, isLoading: marksLoading, error } = useStudentMarks7d(studentId, { enabled: !!studentId });
 
-  // marksData expected to be array of { subject, date, mark, status }
-  const entries = Array.isArray(marksData) && marksData.length ? marksData : [];
-
-  const dates = Array.from(new Set(entries.map(e => e.date))).sort();
-  const subjects = Array.from(new Set(entries.map(e => e.subject))).sort();
-
-  const lookup = {};
-  entries.forEach(e => {
-    lookup[e.subject] = lookup[e.subject] || {};
-    lookup[e.subject][e.date] = e;
-  });
-
-  const avgForSubject = (subject) => {
-    const values = Object.values(lookup[subject] || {}).map(x => x.mark).filter(m => m != null);
-    if (!values.length) return '—';
-    const avg = (values.reduce((s, v) => s + v, 0) / values.length).toFixed(2);
-    return avg;
-  };
+  const entries = Array.isArray(marks7d) ? marks7d : [];
 
   return (
     <div className="card journal-card">
-      {isLoading && <div className="loading">Завантаження...</div>}
+      {marksLoading && <div className="loading">Завантаження...</div>}
       {error && <div className="error">Помилка завантаження даних</div>}
-      {!isLoading && entries.length === 0 && <div className="empty-state">Немає оцінок для цього учня</div>}
-      <table className="journal-table">
-        <thead>
-          <tr>
-            <th>Предмет</th>
-            {dates.map(d => (
-              <th key={d}>{d}</th>
-            ))}
-            <th>Середній</th>
-          </tr>
-        </thead>
-        <tbody>
-          {subjects.map(sub => (
-            <tr key={sub}>
-              <td className="subject-cell">{sub}</td>
-              {dates.map(d => {
-                const e = lookup[sub] && lookup[sub][d];
+      {!marksLoading && entries.length === 0 && <div className="empty-state">Немає записів журналу за останні 7 днів</div>}
+
+      {/* Group entries by date */}
+      <div className="journal-by-date">
+        {(() => {
+          const groups = entries.reduce((acc, item) => {
+            const raw = item.lesson_date || item.date;
+            const key = formatDateShort(raw);
+            acc[key] = acc[key] || [];
+            acc[key].push(item);
+            return acc;
+          }, {});
+          // sort keys by date desc
+          const keys = Object.keys(groups).sort((a, b) => {
+            const pa = parseDateFromKey(a);
+            const pb = parseDateFromKey(b);
+            return pb - pa;
+          });
+
+          // Render days as columns with date headers aligned horizontally
+          return (
+            <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', overflowX: 'auto', paddingBottom: 8 }}>
+              {keys.map((k) => {
+                const dayEntries = groups[k];
+                // group entries by subject name to avoid duplicated subject listings
+                const subjectGroups = dayEntries.reduce((acc, item) => {
+                  const name = (item.subject || item.discipline || item.subject_name || '—').toString();
+                  acc[name] = acc[name] || [];
+                  acc[name].push(item);
+                  return acc;
+                }, {});
+                
+                const subjectKeys = Object.keys(subjectGroups);
+                const mainSubjectName = subjectKeys[0];
+                const mainGroup = subjectGroups[mainSubjectName] || [];
+                const mainItem = mainGroup[0] || {};
+                const otherSubjects = subjectKeys.slice(1).map(s => ({ name: s, items: subjectGroups[s] }));
+                
                 return (
-                  <td key={d} className="mark-cell">
-                    {e ? (e.mark != null ? e.mark : e.status === 'Присутній' ? '—' : '—') : '—'}
-                  </td>
+                  <div key={k} style={{ minWidth: 240, maxWidth: 320, flex: '0 0 260px' }}>
+                    <div style={{ fontWeight: 700, marginBottom: 8, textAlign: 'center' }}>{k}</div>
+
+                    {/* main subject card (first subject of the day) */}
+                    <div style={{ border: '1px solid #ddd', padding: 12, borderRadius: 6, marginBottom: 8 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontSize: 16, fontWeight: 600 }}>{mainSubjectName}</div>
+                        </div>
+                        <div style={{ fontSize: 20, fontWeight: 700 }}>{mainItem.mark != null ? mainItem.mark : (mainItem.status || '—')}</div>
+                      </div>
+
+                      {/* if multiple marks for main subject, list them */}
+                      {mainGroup.length > 1 && (
+                        <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                          {mainGroup.map((mi, ii) => (
+                            <div key={ii} style={{ padding: '6px 8px', borderRadius: 4, border: '1px solid #eee', background: '#fafafa', fontSize: 13 }}>
+                              <div style={{ color: '#444' }}>{formatTime(mi.lesson_date || mi.date)}</div>
+                              <div style={{ fontWeight: 700 }}>{mi.mark != null ? mi.mark : (mi.status || '—')}</div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {otherSubjects.length > 0 && (
+                      <div>
+                        <div style={{ color: '#666', marginBottom: 6 }}>Інші предмети</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 8 }}>
+                          {otherSubjects.map((o, idx) => (
+                            <div key={idx} style={{ border: '1px solid #eee', padding: 8, borderRadius: 6, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <div style={{ fontSize: 14 }}>
+                                <div>{o.name}</div>
+                                <div style={{ color: '#666', fontSize: 12 }}>{o.items.length > 1 ? `${o.items.length} оцінки` : formatTime(o.items[0]?.lesson_date || o.items[0]?.date)}</div>
+                              </div>
+                              <div style={{ fontWeight: 700 }}>{o.items[0]?.mark != null ? o.items[0].mark : (o.items[0]?.status || '—')}</div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 );
               })}
-              <td>{avgForSubject(sub)}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+            </div>
+          );
+        })()}
+      </div>
     </div>
   );
+}
+
+// Helpers
+function formatDateShort(value) {
+  if (!value) return '—';
+  try {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return String(value);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+  } catch (e) {
+    return String(value);
+  }
+}
+
+function parseDateFromKey(key) {
+  // key is dd-mm-yyyy
+  const parts = (key || '').split('-');
+  if (parts.length === 3) {
+    const [dd, mm, yyyy] = parts;
+    return new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+  }
+  const d = new Date(key);
+  return Number.isNaN(d.getTime()) ? 0 : d;
+}
+
+function formatTime(value) {
+  if (!value) return '';
+  try {
+    const d = new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    return d.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+  } catch (e) {
+    return '';
+  }
 }

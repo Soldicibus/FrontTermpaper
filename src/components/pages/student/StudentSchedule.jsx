@@ -5,26 +5,27 @@ import { getCurrentUserClass } from "../../../utils/auth";
 const times = ['08:30', '09:20', '10:10', '11:00', '11:50', '12:40', '13:30', '14:20'];
 const days = ['Понеділок','Вівторок','Середа','Четвер','Пʼятниця'];
 
-export default function StudentSchedule() {
+export default function StudentSchedule({ studentClass: propStudentClass }) {
   const { data: timetables, isLoading } = useTimetables();
-  const studentClass = getCurrentUserClass();
+  const studentClass = propStudentClass || getCurrentUserClass();
   // Simple shape mapping from timetables to day/time structure - this depends on backend shape
   const chosen = (Array.isArray(timetables) && timetables.length) ? (
     // try to find timetable for student's class
     (studentClass && timetables.find(t => `${t.classId || t.class_c}` === `${studentClass}`)) || timetables[0]
   ) : null;
 
-  const sample = chosen ? (chosen.entries?.reduce((acc, e) => {
+  // Ensure we always produce an object for `sample` (avoid undefined when entries absent)
+  const sample = chosen && Array.isArray(chosen.entries) ? chosen.entries.reduce((acc, e) => {
     acc[e.day] = acc[e.day] || [];
     acc[e.day].push({ time: e.time, subject: e.subject });
     return acc;
-  }, {})) : {
-    'Понеділок': [{ time: '08:30', subject: 'Алгебра'}],
-    'Вівторок': [{ time: '09:20', subject: 'Фізика'}],
-    'Середа': [{ time: '10:10', subject: 'Українська мова'}],
-    'Четвер': [{ time: '11:00', subject: 'Географія'}],
-    'Пʼятниця': [{ time: '12:40', subject: 'Історія'}],
-  };
+  }, {}) : {
+     'Понеділок': [{ time: '08:30', subject: 'Алгебра'}],
+     'Вівторок': [{ time: '09:20', subject: 'Фізика'}],
+     'Середа': [{ time: '10:10', subject: 'Українська мова'}],
+     'Четвер': [{ time: '11:00', subject: 'Географія'}],
+     'Пʼятниця': [{ time: '12:40', subject: 'Історія'}],
+   };
 
   return (
     <div className="card schedule-card">
@@ -39,15 +40,18 @@ export default function StudentSchedule() {
           {times.map(t => (
             <div key={t} className="row">
               <div className="time-col">{t}</div>
-              {days.map(d => (
-                <div key={d} className="cell">
-                  { (sample[d]||[]).find(e => e.time === t) ? (
-                    <div className="lesson">
-                      <div className="lesson-subject">{(sample[d].find(e => e.time===t)||{}).subject}</div>
-                    </div>
-                  ) : null }
-                </div>
-              ))}
+              {days.map(d => {
+                const found = (sample?.[d] || []).find(e => e.time === t);
+                return (
+                  <div key={d} className="cell">
+                    {found ? (
+                      <div className="lesson">
+                        <div className="lesson-subject">{found.subject}</div>
+                      </div>
+                    ) : null}
+                  </div>
+                );
+              })}
             </div>
           ))}
         </div>

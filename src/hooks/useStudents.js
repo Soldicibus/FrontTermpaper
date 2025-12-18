@@ -1,5 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as api from '../api/api';
+import { decodeToken } from '../utils/jwt';
+import { prefetchUserData } from '../utils/prefetch';
 
 // Students
 export function useStudents() {
@@ -12,6 +14,18 @@ export function useStudent(id) {
 
 export function useStudentMarks(studentId, opts = {}) {
   return useQuery({ queryKey: ['student', studentId, 'marks'], queryFn: () => api.getStudentMarks(studentId), enabled: !!studentId, ...opts });
+}
+
+export function useStudentDayPlan(studentId, opts = {}) {
+  return useQuery({ queryKey: ['student', studentId, 'day-plan', opts.fromDate, opts.toDate], queryFn: () => api.getStudentDayPlan(studentId, opts.fromDate, opts.toDate), enabled: !!studentId && !!opts.fromDate, ...opts });
+}
+
+export function useStudentGradesAndAbsences(studentId, opts = {}) {
+  return useQuery({ queryKey: ['student', studentId, 'grades-absences'], queryFn: () => api.getStudentGradesAndAbsences(studentId), enabled: !!studentId, ...opts });
+}
+
+export function useStudentRanking(opts = {}) {
+  return useQuery({ queryKey: ['students', 'ranking'], queryFn: () => api.getStudentRanking(), ...opts });
 }
 
 export function useStudentsByParent(parentId, opts = {}) {
@@ -71,7 +85,15 @@ export function useUserRoles(id, opts = {}) {
 // Auth
 export function useLogin() {
   const qc = useQueryClient();
-  return useMutation({ mutationFn: api.login, onSuccess: () => qc.invalidateQueries() });
+  return useMutation({
+    mutationFn: api.login,
+    onSuccess: (data) => {
+      qc.invalidateQueries();
+      // data may contain user object or accessToken
+      const userId = data?.user?.id || decodeToken(data?.accessToken)?.userId || null;
+      if (userId) prefetchUserData(qc, userId);
+    },
+  });
 }
 
 export function useLogout() {
@@ -97,4 +119,8 @@ export function useClasses() {
 
 export function useClass(id) {
   return useQuery({ queryKey: ['class', id], queryFn: () => api.getClassById(id), enabled: !!id });
+}
+
+export function useStudentMarks7d(studentId, opts = {}) {
+  return useQuery({ queryKey: ['student', studentId, 'marks-7d'], queryFn: () => api.getStudentMarks7d(studentId), enabled: !!studentId, ...opts });
 }

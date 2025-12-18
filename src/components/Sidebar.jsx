@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { getCurrentUser } from '../utils/auth';
+import { useUserRoles } from '../hooks/useStudents';
 import "./pages/css/Sidebar.css";
 
 export default function Sidebar() {
@@ -21,6 +23,23 @@ export default function Sidebar() {
     const search = q.toString() ? `?${q.toString()}` : "";
     navigate({ pathname: location.pathname, search });
   };
+
+  // Determine user roles for conditional link rendering
+  const currentUser = getCurrentUser();
+  const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
+  const { data: rolesResp } = useUserRoles(userId, { enabled: !!userId });
+  const roles = (() => {
+    if (!rolesResp) return [];
+    if (Array.isArray(rolesResp)) return rolesResp.map(r => (typeof r === 'string' ? r : (r.role_name || r.name || r)) );
+    if (rolesResp.roles) return rolesResp.roles.map(r => (typeof r === 'string' ? r : (r.role_name || r.name || r)) );
+    if (rolesResp.role) return [ (typeof rolesResp.role === 'string' ? rolesResp.role : (rolesResp.role.role_name || rolesResp.role.name || '')) ];
+    return [];
+  })();
+
+  function hasRole(name) {
+    if (!roles || !roles.length) return false;
+    return roles.some(r => String(r).toLowerCase() === String(name).toLowerCase());
+  }
 
   return (
     <>
@@ -67,15 +86,26 @@ export default function Sidebar() {
           <Link to="/auth" onClick={closeSidebar}>
             Авторизація
           </Link>
-          <Link to="/teacher/classes" onClick={closeSidebar}>
-            Для вчителів
-          </Link>
-          <Link to="/student/dashboard" onClick={closeSidebar}>
-            Для учнів
-          </Link>
-          <Link to="/parent/overview" onClick={closeSidebar}>
-            Для батьків
-          </Link>
+          {hasRole('teacher') && (
+            <Link to="/teacher/classes" onClick={closeSidebar}>
+              Для вчителів
+            </Link>
+          )}
+          {hasRole('student') && (
+            <Link to="/student/dashboard" onClick={closeSidebar}>
+              Для учнів
+            </Link>
+          )}
+          {hasRole('parent') && (
+            <Link to="/parent/overview" onClick={closeSidebar}>
+              Для батьків
+            </Link>
+          )}
+          {hasRole('admin') && (
+            <Link to="/admin" onClick={closeSidebar}>
+              Панель адміністратора
+            </Link>
+          )}
           <Link to="/cabinet" style={{ marginTop: "34vw" }} onClick={closeSidebar}>
             Особистий кабінет
           </Link>

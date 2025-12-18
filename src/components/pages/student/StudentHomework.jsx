@@ -2,11 +2,11 @@ import React, { useState } from "react";
 import { useHomework } from "../../../hooks/useStudents";
 import { getCurrentStudentId, getCurrentUserClass } from "../../../utils/auth";
 
-export default function StudentHomework() {
+export default function StudentHomework({ studentId: propStudentId, studentClass: propStudentClass }) {
   const [openId, setOpenId] = useState(null);
   const { data: homework, isLoading } = useHomework();
-  const studentId = getCurrentStudentId();
-  const studentClass = getCurrentUserClass();
+  const studentId = propStudentId || getCurrentStudentId();
+  const studentClass = propStudentClass || getCurrentUserClass();
   let list = Array.isArray(homework) && homework.length ? homework : [];
 
   // Filter homework relevant for current student (by studentId or by class)

@@ -112,6 +112,21 @@ export const getStudentMarks = (studentId, fromDate, toDate) => {
   if (toDate) params.set('toDate', toDate);
   return fetchJSON(`/students/marks?${params.toString()}`).then(r => r.students || []);
 };
+export const getStudentDayPlan = (studentId, fromDate, toDate) => {
+  const params = new URLSearchParams();
+  if (studentId) params.set('studentId', studentId);
+  if (fromDate) params.set('fromDate', fromDate);
+  if (toDate) params.set('toDate', toDate);
+  return fetchJSON(`/students/day-plan?${params.toString()}`).then(r => r.day_plan || []);
+};
+export const getStudentGradesAndAbsences = (studentId, startDate, endDate) => {
+  const params = new URLSearchParams();
+  if (studentId) params.set('studentId', studentId);
+  if (startDate) params.set('startDate', startDate);
+  if (endDate) params.set('endDate', endDate);
+  return fetchJSON(`/students/grades-and-absences?${params.toString()}`).then(r => r.students || []);
+};
+export const getStudentRanking = () => fetchJSON('/students/ranking').then(r => r.students || []);
 export const getStudentsByParent = (parentId) => fetchJSON(`/students/by-parent/${parentId}`).then(r => r.students || []);
 
 export const addStudent = (payload) => fetchJSON('/students', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }).then(r => r.newStudent);
@@ -165,4 +180,21 @@ export const getClassById = (id) => fetchJSON(`/classes/${id}`).then(r => r.clas
 export const getRolesByUserId = (id) => {
   if (!id) return Promise.reject(new Error('id required'));
   return fetchJSON(`/userroles/role/${id}`).then(r => r.roles || r);
+};
+
+export const getJournalByStudent = (studentId) => {
+  if (!studentId) return Promise.resolve([]);
+  return fetchJSON(`/journals/student/${studentId}`)
+    .then(r => r.entries || [])
+    .catch(err => {
+      console.warn('[api] getJournalByStudent failed', err.message || err);
+      return [];
+    });
+};
+export const getStudentMarks7d = (studentId) => {
+  if (!studentId) return Promise.resolve([]);
+  return fetchJSON(`/studentdata/journal/${studentId}`).then(r => r.marks || r).catch(err => {
+    console.warn('[api] getStudentMarks7d failed', err.message || err);
+    return [];
+  });
 };

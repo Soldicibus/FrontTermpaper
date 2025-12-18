@@ -10,6 +10,7 @@ export default function Mainpage() {
                 <p className="main__subtitle">Освітня екосистема для учнів, вчителів та батьків</p>
                 <p className="main__subtitle">Підтримка школи у цифровому форматі. Ні бюрократії!</p>
                 <p className="main__subtitle">Натхнення для навчання кожного дня</p>
+                <p className="main__subtitle">Щоб почати — увійдіть до системи.</p>
             </div>
 
             <section className="main__content">
