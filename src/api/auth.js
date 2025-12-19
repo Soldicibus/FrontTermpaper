@@ -8,7 +8,6 @@ export const login = async ({ username, email, password }) => {
   // persist token if provided
   if (data?.accessToken) localStorage.setItem("accessToken", data.accessToken);
 
-
   return data;
 };
 
@@ -36,4 +35,17 @@ export const logout = async () => {
   }
   localStorage.removeItem("accessToken");
   return true;
+};
+export const handleRoleSwitch = async (targetRole) => {
+  try {
+    const request = await api.post("/auth/switch-role", { targetRole });
+
+    localStorage.setItem("accessToken", request.data.accessToken);
+
+    setActiveRole(request.data.activeRole);
+
+    window.location.reload();
+  } catch (err) {
+    console.error("Switch failed", err);
+  }
 };
