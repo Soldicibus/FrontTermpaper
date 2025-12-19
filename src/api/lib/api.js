@@ -11,7 +11,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("accessToken");
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -47,7 +47,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       console.log("Unauthorized - loggin out");
 
-      localStorage.removeItem("token");
+      localStorage.removeItem("accessToken");
 
       redirect("/login");
     }
