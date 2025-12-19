@@ -60,7 +60,11 @@ export const createStudent = async (
   class_c,
 ) => {
   const request = await api.post("/studens", {
-    data: { name, surname, patronym, phone, class_c },
+    name,
+    surname,
+    patronym,
+    phone,
+    class_c,
   });
 
   return request;
@@ -76,7 +80,12 @@ export const patchStudent = async (
   user_id = null,
 ) => {
   const request = await api.patch(`/studens/${id}`, {
-    data: { name, surname, patronym, phone, class_c, user_id },
+    name,
+    surname,
+    patronym,
+    phone,
+    class_c,
+    user_id,
   });
 
   return request;

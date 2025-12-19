@@ -26,7 +26,10 @@ export const getTeacherById = async (id) => {
 
 export const createTeacher = async (name, surname, patronym, phone) => {
   const request = await api.post("/teacher", {
-    data: { name, surname, patronym, phone },
+    name,
+    surname,
+    patronym,
+    phone,
   });
   return request;
 };
@@ -40,13 +43,11 @@ export const patchTeacher = async (
   user_id = null,
 ) => {
   const request = await api.patch(`/teacher/${id}`, {
-    data: {
-      name,
-      surname,
-      patronym,
-      phone,
-      user_id,
-    },
+    name,
+    surname,
+    patronym,
+    phone,
+    user_id,
   });
 
   return request;
