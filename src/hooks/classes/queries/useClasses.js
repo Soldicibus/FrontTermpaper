@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import * as classesAPI from "../../api/classesAPI.js";
+import * as classesAPI from "../../../api/classesAPI.js";
 
 export function useClasses() {
   return useQuery({

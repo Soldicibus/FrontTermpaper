@@ -1,5 +1,5 @@
 import React from "react";
-import { useClass } from "../../../hooks/useStudents";
+import { useClass } from "../../../hooks/classes/queries/useClass";
 import { useParams } from "react-router-dom";
 
 export default function TeacherClassView() {

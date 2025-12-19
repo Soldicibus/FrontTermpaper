@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import * as parentAPI from "../../api/parentAPI.js";
+import * as parentAPI from "../../../api/parentAPI.js";
 
 export function useParent(id) {
   return useQuery({

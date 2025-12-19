@@ -1,5 +1,5 @@
 import React from "react";
-import { useStudentMarks7d } from "../../../hooks/useStudents";
+import { useStudentDataMarks7d } from "../../../hooks/studentdata/queries/useStudentDataMarks7d";
 import { getCurrentStudentId } from '../../../utils/auth';
 
 function formatDate(value) {
@@ -15,7 +15,7 @@ function formatDate(value) {
 
 export default function StudentJournal({ studentId: propStudentId }) {
   const studentId = propStudentId || getCurrentStudentId();
-  const { data: marks7d, isLoading: marksLoading, error } = useStudentMarks7d(studentId, { enabled: !!studentId });
+  const { data: marks7d, isLoading: marksLoading, error } = useStudentDataMarks7d(studentId);
 
   const entries = Array.isArray(marks7d) ? marks7d : [];
 

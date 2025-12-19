@@ -1,5 +1,5 @@
 import React from "react";
-import { useStudentsByParent } from "../../../hooks/useStudents";
+import { useStudentsByParent } from "../../../hooks/students/queries/useStudentByParent";
 
 export default function ParentOverview() {
   const parentId = 1; // TODO: get from auth

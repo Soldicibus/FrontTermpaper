@@ -1,7 +1,8 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { decodeToken } from '../utils/jwt';
-import { useUserRoles, useUserData } from '../hooks/useStudents';
+import { useUserRoles } from '../hooks/userroles/queries/useUserRoles';
+import { useUserData } from '../hooks/users/queries/useUserData';
 
 // allowedRoles: array of role names or ids
 export default function RequireRole({ allowedRoles = [], children }) {

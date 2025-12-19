@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import * as lessonsAPI from "../../api/lessonsAPI.js";
+import * as lessonsAPI from "../../../api/lessonsAPI.js";
 
 export function useLesson(id) {
   return useQuery({

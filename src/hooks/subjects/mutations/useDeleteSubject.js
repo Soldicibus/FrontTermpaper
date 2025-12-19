@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as subjectsAPI from "../../api/subjectsAPI.js";
+import * as subjectsAPI from "../../../api/subjectsAPI.js";
 
 export function useDeleteSubject() {
   const qc = useQueryClient();

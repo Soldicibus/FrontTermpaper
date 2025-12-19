@@ -1,25 +1,27 @@
 import React from 'react';
-import { useStudentRanking } from '../../../hooks/useStudents';
+import { useStudentRanking } from '../../../hooks/students/queries/useStudentRanking';
 
 function displayName(row) {
   if (!row) return '—';
-  // common possibilities
-  return (
-    row.student_name || row.name || row.first_name || row.student_name || row.full_name ||
-    (row.firstname || row.first) && `${row.firstname || row.first} ${row.student_surname || row.last_name || ''}` ||
-    row.username || row.login || '—'
-  );
+  // Prefer explicit student_name or common first-name fields, fall back to login/username
+  return row.student_name || row.username || row.login || '—';
 }
 
 function displaySurname(row) {
   if (!row) return '—';
-  return row.student_surname || row.last_name || '—';
+  return row.student_surname || '—';
 }
 
 function displayAvg(row) {
   if (!row) return '—';
-  const candidates = [row.avg, row.average, row.mean, row.avg_mark, row.average_mark, row.average_score, row.score];
-  for (const v of candidates) if (v != null) return Number(v).toFixed(2);
+  // Prefer avg_mark when available
+  const candidates = [row.avg_mark, row.avg, row.average, row.mean, row.average_mark, row.average_score, row.score];
+  for (const v of candidates) {
+    if (v != null && v !== '') {
+      const n = Number(String(v).replace(',', '.'));
+      if (!Number.isNaN(n)) return n.toFixed(2);
+    }
+  }
   return '—';
 }
 
@@ -29,9 +31,28 @@ export default function StudentRanking() {
   if (isLoading) return <div>Завантаження рейтингу...</div>;
   if (error) return <div>Помилка: {error.message || 'Не вдалося завантажити рейтинг'}</div>;
 
-  let rows = Array.isArray(ranking) ? ranking : (ranking && Array.isArray(ranking.students) ? ranking.students : []);
+  // Normalize the hook result into an array of rows.
+  // Handles shapes:
+  //  - Array: [ {...}, {...} ]
+  //  - { students: [ ... ] }
+  //  - axios response: { data: { students: [...] } }
 
-  // If the rows are arrays (positional), map to objects: [id, name, class, avg, rank]
+  // Debug: log the ranking shape in dev
+  if (import.meta.env.DEV) {
+    console.log('StudentRanking: raw ranking value', ranking);
+  }
+
+  let rows = [];
+  if (Array.isArray(ranking)) {
+    rows = ranking;
+  } else if (ranking && Array.isArray(ranking.students)) {
+    rows = ranking.students;
+  } else if (ranking && ranking.data && Array.isArray(ranking.data.students)) {
+    rows = ranking.data.students;
+  } else if (ranking && Array.isArray(ranking.data)) {
+    rows = ranking.data;
+  }
+
   if (rows.length > 0 && Array.isArray(rows[0])) {
     rows = rows.map(r => ({ id: r[0], name: r[1], class: r[2], avg: r[3], rank: r[4] }));
   }
@@ -40,7 +61,7 @@ export default function StudentRanking() {
 
   // sort by numeric average descending
   function getAvgNumeric(row) {
-    const candidates = [row.avg_mark, row.avg, row.average, row.mean, row.average_mark, row.average_score, row.score];
+    const candidates = [row.avg_mark];
     for (const v of candidates) {
       if (v != null && v !== '') {
         const n = Number(String(v).replace(',', '.'));
@@ -67,18 +88,18 @@ export default function StudentRanking() {
         </thead>
         <tbody>
           {sorted.map((r, idx) => (
-            <tr key={r.id || r.student_id || idx}>
+            <tr key={r.student_id}>
               <td>{idx + 1}</td>
               <td>{displayName(r)}</td>
               <td>{displaySurname(r)}</td>
-              <td>{r.student_class || r.class || r.class_c || r.className || '—'}</td>
+              <td>{r.student_class || '—'}</td>
               <td>{displayAvg(r)}</td>
             </tr>
           ))}
         </tbody>
       </table>
       {/* If rows appear to have no name/avg fields, show a small debug preview of the first row */}
-      {sorted.length > 0 && !(displayName(sorted[0]) !== '—' || displayAvg(sorted[0]) !== '—') && (
+      {sorted.length > 0 && (displayName(sorted[0]) === '—' && displayAvg(sorted[0]) === '—') && (
         <pre style={{ fontSize: 12, marginTop: 8 }}>{JSON.stringify(sorted[0], null, 2)}</pre>
       )}
     </div>

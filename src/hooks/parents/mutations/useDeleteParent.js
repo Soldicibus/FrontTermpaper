@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as parentAPI from "../../api/parentAPI.js";
+import * as parentAPI from "../../../api/parentAPI.js";
 
 export function useDeleteParent() {
   const qc = useQueryClient();

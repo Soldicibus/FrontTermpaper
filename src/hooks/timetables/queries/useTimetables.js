@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import * as timetablesAPI from "../../api/timetablesAPI.js";
+import * as timetablesAPI from "../../../api/timetablesAPI.js";
 
 export function useTimetables() {
   return useQuery({

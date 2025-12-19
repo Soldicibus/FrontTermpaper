@@ -1,7 +1,7 @@
 import React from "react";
 import "./css/Mainpage.css";
 import { decodeToken } from '../../utils/jwt';
-import { useLogout, useUserData } from "../../hooks/useStudents";
+import { useLogout, useUserData } from "../../hooks/users";
 import { useNavigate } from "react-router-dom";
 
 export default function Cabinet() {

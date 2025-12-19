@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useTeachers } from "../../../hooks/useStudents";
+import { useTeachers } from "../../../hooks/teachers/queries/useTeachers";
 
 export default function TeacherClasses() {
   const { data: teachers, isLoading, error } = useTeachers();

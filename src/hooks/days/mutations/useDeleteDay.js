@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as daysAPI from "../../api/daysAPI.js";
+import * as daysAPI from "../../../api/daysAPI.js";
 
 export function useDeleteDay() {
   const qc = useQueryClient();

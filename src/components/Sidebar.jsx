@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getCurrentUser, isAuthenticated } from '../utils/auth';
-import { useUserRoles } from '../hooks/useStudents';
+import { useUserRoles } from '../hooks/userroles/queries/useUserRoles';
 import "./pages/css/Sidebar.css";
 
 export default function Sidebar() {

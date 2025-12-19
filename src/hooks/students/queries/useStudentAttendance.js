@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import * as studentAPI from "../../api/studentAPI.js";
+import * as studentAPI from "../../../api/studentAPI.js";
 
 export function useStudentAttendance() {
   return useQuery({
@@ -7,3 +7,6 @@ export function useStudentAttendance() {
     queryFn: studentAPI.getStudentsAttendance,
   });
 }
+
+// Backwards-compatible name used by some pages
+export const useStudentAttendanceReport = useStudentAttendance;

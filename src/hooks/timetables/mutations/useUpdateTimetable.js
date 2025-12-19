@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import * as timetablesAPI from "../../api/timetablesAPI.js";
+import * as timetablesAPI from "../../../api/timetablesAPI.js";
 
 export function useUpdateTimetable() {
   const qc = useQueryClient();

@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import * as studentdataAPI from "../../api/studentdataAPI.js";
+import * as studentdataAPI from "../../../api/studentdataAPI.js";
 
 export function useStudentDataMarks7d(studentId) {
   return useQuery({

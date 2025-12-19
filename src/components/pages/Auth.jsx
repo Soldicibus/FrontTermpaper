@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import "./css/Auth.css";
-import { useLogin } from "../../hooks/useStudents";
+import { useLogin } from "../../hooks/users";
 import { useNavigate, useLocation } from "react-router-dom";
-import { decodeToken } from '../../utils/jwt';
+import { decodeToken } from "../../utils/jwt";
 
 export default function Auth() {
     const [username, setUsername] = useState('');

@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useHomework, useHomeworkByStudent, useUserData } from "../../../hooks/useStudents";
+import { useHomework } from "../../../hooks/homework/queries/useHomework";
+import { useHomeworkByStudentOrClass } from "../../../hooks/homework/queries/useHomeworkByStudentOrClass";
+import { useUserData } from "../../../hooks/users/queries/useUserData";
 import { getCurrentStudentId, getCurrentUserClass, getCurrentUser } from "../../../utils/auth";
 
 export default function StudentHomework({ studentId: propStudentId, studentClass: propStudentClass }) {
@@ -19,7 +21,7 @@ export default function StudentHomework({ studentId: propStudentId, studentClass
   if (!resolvedClass && userData) resolvedClass = userData?.class || userData?.class_c || userData?.classId || null;
 
   // If we have a student id, ask the server for homework for this student
-  const { data: studentHomework, isLoading: studentHomeworkLoading } = useHomeworkByStudent(resolvedStudentId, { enabled: !!resolvedStudentId });
+  const { data: studentHomework, isLoading: studentHomeworkLoading } = useHomeworkByStudentOrClass(resolvedStudentId, { enabled: !!resolvedStudentId });
 
   // If server returned homework for student, use it. Otherwise fall back to filtering all homework by class.
   let list = [];

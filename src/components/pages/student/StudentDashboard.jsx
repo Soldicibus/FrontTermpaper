@@ -6,7 +6,11 @@ import StudentSchedule from "./StudentSchedule";
 import StudentMaterials from "./StudentMaterials";
 import StudentGradesAndAbsences from "./StudentGradesAndAbsences";
 import StudentRanking from "./StudentRanking";
-import { useStudents, useStudent, useUserData, useClass, useUserRoles } from "../../../hooks/useStudents";
+import { useStudents } from "../../../hooks/students/queries/useStudents";
+import { useStudent } from "../../../hooks/students/queries/useStudent";
+import { useUserData } from "../../../hooks/users/queries/useUserData";
+import { useClass } from "../../../hooks/classes/queries/useClass";
+import { useUserRoles } from "../../../hooks/userroles/queries/useUserRoles";
 import { decodeToken } from "../../../utils/jwt";
 
 export default function StudentDashboard() {

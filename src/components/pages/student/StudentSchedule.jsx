@@ -1,11 +1,14 @@
-import React from "react";
-import { useTimetableByStudent, useWeeklyTimetableById, useUserData } from "../../../hooks/useStudents";
+import React, { useState } from "react";
+import { useTimetableByStudent } from "../../../hooks/timetables/queries/useTimetableByStudent";
+import { useWeeklyTimetable } from "../../../hooks/timetables/queries/useWeeklyTimetable";
+import { useUserData } from "../../../hooks/users/queries/useUserData";
 import { getCurrentStudentId, getCurrentUser } from "../../../utils/auth";
 
 const times = ['08:30', '09:20', '10:10', '11:00', '11:50', '12:40', '13:30', '14:20'];
 const days = ['Понеділок','Вівторок','Середа','Четвер','Пʼятниця'];
 
 export default function StudentSchedule({ studentClass: propStudentClass }) {
+  const [selectedSubject, setSelectedSubject] = useState(null);
   // Prefer timetable by student id. If token doesn't include studentId, fetch user data and use its entity_id/student_id.
   const tokenStudentId = getCurrentStudentId();
   const currentUser = getCurrentUser();
@@ -46,7 +49,7 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
 
   console.log('student schedule: resolvedStudentId, timetables response', { userId, tokenStudentId, resolvedStudentId, userData, timetables, timetableId });
 
-  const { data: weekRows, isLoading: weekLoading } = useWeeklyTimetableById(timetableId, { enabled: !!timetableId });
+  const { data: weekRows, isLoading: weekLoading } = useWeeklyTimetable(timetableId, { enabled: !!timetableId });
   const loading = timetablesLoading || weekLoading;
 
   function normalizeDayName(s) {
@@ -63,7 +66,14 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
       const day = normalizeDayName(r.weekday || r.weekday_name || r.day || r.week);
       const t = (r.lesson_time || r.lesson_time || r.lesson || r.time || '').toString().slice(0,5);
       sample[day] = sample[day] || [];
-      sample[day].push({ time: t, subject: r.subject });
+      sample[day].push({ 
+        time: t, 
+        subject: r.subject,
+        subject_id: r.subject_id,
+        teacher: r.teacher || r.teacher_name,
+        classroom: r.classroom || r.room,
+        lesson_id: r.lesson_id || r.id
+      });
       if (t && !timesFromData.includes(t)) timesFromData.push(t);
     });
     // sort times
@@ -71,6 +81,16 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
   }
 
   const timesList = timesFromData.length ? timesFromData : times;
+
+  const handleLessonClick = (lesson) => {
+    if (lesson) {
+      setSelectedSubject(lesson);
+    }
+  };
+
+  const closeModal = () => {
+    setSelectedSubject(null);
+  };
 
   return (
     <div className="card schedule-card">
@@ -91,7 +111,11 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
                 return (
                   <div key={d} className="cell">
                     {found ? (
-                      <div className="lesson">
+                      <div 
+                        className="lesson" 
+                        onClick={() => handleLessonClick(found)}
+                        style={{ cursor: 'pointer' }}
+                      >
                         <div className="lesson-subject">{found.subject}</div>
                       </div>
                     ) : null}
@@ -103,6 +127,56 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
         </div>
         {!weekLoading && !(Array.isArray(weekRows) && weekRows.length > 0) && <div className="empty-state">Немає розкладу для вашого розкладу</div>}
       </div>
+
+      {selectedSubject && (
+        <div 
+          className="modal-overlay" 
+          onClick={closeModal}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+        >
+          <div 
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: 'white',
+              padding: '24px',
+              borderRadius: '8px',
+              maxWidth: '500px',
+              width: '90%',
+              maxHeight: '80vh',
+              overflow: 'auto',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+            }}
+          >
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {selectedSubject.subject && (
+                <div>
+                  <strong style={{ color: '#777' }}>Ім'я:</strong>
+                  <div style={{ marginTop: '4px', color: '#000000ff' }}>{selectedSubject.subject}</div>
+                </div>
+              )}
+              
+              {selectedSubject.time && (
+                <div>
+                  <strong style={{ color: '#777' }}>Час:</strong>
+                  <div style={{ marginTop: '4px', color: '#000000ff' }}>{selectedSubject.time}</div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

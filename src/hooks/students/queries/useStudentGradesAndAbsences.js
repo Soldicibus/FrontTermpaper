@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import * as studentAPI from "../../api/studentAPI.js";
+import * as studentAPI from "../../../api/studentAPI.js";
 
 export function useStudentGradesAndAbsences() {
   return useQuery({

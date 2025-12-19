@@ -1,8 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import * as api from "../api/api";
+import * as api from "../api/api_old.js";
 import * as teacherAPI from "../api/teacherAPI.js";
-import { decodeToken } from "../utils/jwt";
-import { prefetchUserData } from "../utils/prefetch";
+import { decodeToken } from "../utils/jwt.js";
+import { prefetchUserData } from "../utils/prefetch.js";
 
 // Students
 export function useStudents() {

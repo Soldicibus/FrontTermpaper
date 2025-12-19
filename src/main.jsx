@@ -16,8 +16,7 @@ import RequireAuth from "./components/RequireAuth";
 import RequireRole from "./components/RequireRole";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { getMe } from './api/api';
-import { prefetchUserData } from './utils/prefetch';
+import { me } from './api/auth.js';
 
 // initialize a single client for the app
 const queryClient = new QueryClient();
@@ -30,11 +29,7 @@ function App() {
 
     (async () => {
       try {
-        const res = await getMe();
-        const userId = res?.user?.id || null;
-        if (userId) {
-          prefetchUserData(queryClient, userId);
-        }
+        const res = await me();
       } catch (e) {
         // ignore - might be unauthorized
       }

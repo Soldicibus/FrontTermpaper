@@ -1,5 +1,7 @@
 import React from 'react';
-import { useStudentGradesAndAbsences, useUserData, useStudentAttendanceReport } from '../../../hooks/useStudents';
+import { useStudentGradesAndAbsences } from '../../../hooks/students/queries/useStudentGradesAndAbsences';
+import { useStudentAttendanceReport } from '../../../hooks/students/queries/useStudentAttendance';
+import { useUserData } from '../../../hooks/users/queries/useUserData';
 import { getCurrentStudentId, getCurrentUser } from '../../../utils/auth';
 
 export default function StudentGradesAndAbsences({ enabled = true, studentId: propStudentId }) {
