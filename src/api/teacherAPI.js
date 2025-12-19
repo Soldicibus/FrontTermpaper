@@ -1,34 +1,34 @@
 import api from "./lib/api.js";
 
 export const getTeachers = async () => {
-  const response = await api.get("/teacher");
+  const request = await api.get("/teacher");
 
-  return response;
+  return request;
 };
 
 export const getTeacherSalaryReport = async () => {
-  const response = await api.get("/teacher/salary");
+  const request = await api.get("/teacher/salary");
 
-  return response;
+  return request;
 };
 
 export const getTeachersWithClasses = async () => {
-  const response = await api.get("/teacher/with-classes");
+  const request = await api.get("/teacher/with-classes");
 
-  return response;
+  return request;
 };
 
 export const getTeacherById = async (id) => {
-  const response = await api.get(`/teacher/${id}`);
+  const request = await api.get(`/teacher/${id}`);
 
-  return response;
+  return request;
 };
 
 export const createTeacher = async (name, surname, patronym, phone) => {
-  const response = await api.post("/teacher", {
+  const request = await api.post("/teacher", {
     data: { name, surname, patronym, phone },
   });
-  return response;
+  return request;
 };
 
 export const patchTeacher = async (
@@ -39,7 +39,7 @@ export const patchTeacher = async (
   phone,
   user_id = null,
 ) => {
-  const response = await api.patch(`/teacher/${id}`, {
+  const request = await api.patch(`/teacher/${id}`, {
     data: {
       name,
       surname,
@@ -49,11 +49,11 @@ export const patchTeacher = async (
     },
   });
 
-  return response;
+  return request;
 };
 
 export const deleteTeacher = async (id) => {
-  const response = await api.delete(`/teacher/${id}`);
+  const request = await api.delete(`/teacher/${id}`);
 
-  return response;
+  return request;
 };

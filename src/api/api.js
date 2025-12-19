@@ -19,7 +19,6 @@ async function fetchJSON(path, options = {}) {
 
     // If unauthorized, attempt to refresh once (but don't do this for auth endpoints themselves)
     if (res.status === 401 && !path.startsWith("/auth")) {
-      const refreshToken = localStorage.getItem("refreshToken");
       console.warn("[api] received 401 for", path);
       if (!refreshToken) {
         console.warn("[api] no refresh token available");
@@ -207,7 +206,6 @@ export const login = async ({ username, email, password }) => {
   });
   // Store tokens
   if (res.accessToken) localStorage.setItem("accessToken", res.accessToken);
-  if (res.refreshToken) localStorage.setItem("refreshToken", res.refreshToken);
   return res;
 };
 
