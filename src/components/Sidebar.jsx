@@ -92,9 +92,11 @@ export default function Sidebar() {
             </Link>
           )}
           {(hasRole('teacher') || hasRole('admin') || hasRole('sadmin')) && (
-            <Link to="/teacher/classes" onClick={closeSidebar}>
-              Для вчителів
-            </Link>
+            <>
+              <Link to="/teacher/dashboard" onClick={closeSidebar}>
+                Кабінет учителя
+              </Link>
+            </>
           )}
           {(hasRole('student') || hasRole('admin') || hasRole('sadmin')) && (
             <Link to="/student/dashboard" onClick={closeSidebar}>

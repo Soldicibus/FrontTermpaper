@@ -43,9 +43,6 @@ export const getStudentsAttendance = async (id) => {
 
   const request = await api.get(`/students/attendance/${resolvedId}`);
   const data = request.data;
-
-  // Normalize common response shapes to an array like:
-  // [{ present, absent, present_percent }]
   if (Array.isArray(data)) return data;
   if (Array.isArray(data?.rows)) return data.rows;
   if (Array.isArray(data?.report)) return data.report;

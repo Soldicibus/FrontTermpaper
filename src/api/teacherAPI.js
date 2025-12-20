@@ -12,8 +12,8 @@ export const getTeacherSalaryReport = async () => {
   return request.data;
 };
 
-export const getTeachersWithClasses = async () => {
-  const request = await api.get("/teacher/with-classes");
+export const getTeachersWithClasses = async (id) => {
+  const request = await api.get(`/teacher/with-classes/${id}`);
 
   return request.data;
 };

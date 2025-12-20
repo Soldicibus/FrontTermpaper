@@ -10,6 +10,7 @@ import StudentDashboard from "./components/pages/student/StudentDashboard";
 import ParentOverview from "./components/pages/parent/ParentOverview";
 import TeacherClasses from "./components/pages/teacher/TeacherClasses";
 import TeacherClassView from "./components/pages/teacher/TeacherClassView";
+import TeacherDashboard from "./components/pages/teacher/TeacherDashboard";
 import StudentRanking from "./components/pages/student/StudentRanking";
 import AdminPanel from "./components/pages/admin/AdminPanel";
 import RequireAuth from "./components/RequireAuth";
@@ -46,10 +47,8 @@ function App() {
         <Route path="/student/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Student","Admin","SAdmin"]}><StudentDashboard /></RequireRole></RequireAuth>} />
         <Route path="/admin" element={<RequireAuth><RequireRole allowedRoles={["Admin","SAdmin"]}><AdminPanel /></RequireRole></RequireAuth>} />
         <Route path="/parent/overview" element={<RequireAuth><RequireRole allowedRoles={["Parent","Admin","SAdmin"]}><ParentOverview /></RequireRole></RequireAuth>} />
-        <Route path="/teacher/classes" element={<RequireAuth><RequireRole allowedRoles={["Teacher","Admin","SAdmin"]}><TeacherClasses /></RequireRole></RequireAuth>} />
-        <Route path="/teacher/class/:id" element={<RequireAuth><RequireRole allowedRoles={["Teacher","Admin","SAdmin"]}><TeacherClassView /></RequireRole></RequireAuth>} />
+        <Route path="/teacher/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Teacher","Admin","SAdmin"]}><TeacherDashboard /></RequireRole></RequireAuth>} />
         <Route path="/cabinet" element={<RequireAuth><Cabinet /></RequireAuth>} />
-        <Route path="/student/ranking" element={<RequireAuth><RequireRole allowedRoles={["Teacher","Admin","SAdmin"]}><StudentRanking /></RequireRole></RequireAuth>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
