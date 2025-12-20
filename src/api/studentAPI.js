@@ -25,8 +25,8 @@ export const getStudentByParentId = async (id) => {
   const data = request.data;
   return data.student ?? data;
 }
-export const getGradesAndAbsences = async () => {
-  const request = await api.get("/students/grades-and-absences");
+export const getGradesAndAbsences = async (id) => {
+  const request = await api.get(`/students/grades-and-absences/${id}`);
 
   return request.data;
 };
@@ -35,10 +35,24 @@ export const getStudentsMarks = async () => {
 
   return request.data;
 };
-export const getStudentsAttendance = async () => {
-  const request = await api.get("/students/attendance");
+export const getStudentsAttendance = async (id) => {
+  const resolvedId =
+    typeof id === "object" && id !== null
+      ? id.id ?? id.student_id ?? id.studentId ?? id.entity_id ?? id.entityId
+      : id;
 
-  return request.data;
+  const request = await api.get(`/students/attendance/${resolvedId}`);
+  const data = request.data;
+
+  // Normalize common response shapes to an array like:
+  // [{ present, absent, present_percent }]
+  if (Array.isArray(data)) return data;
+  if (Array.isArray(data?.rows)) return data.rows;
+  if (Array.isArray(data?.report)) return data.report;
+  if (Array.isArray(data?.attendance)) return data.attendance;
+  if (data && typeof data === "object") return [data];
+
+  return data;
 };
 export const getStudentsDayPlan = async () => {
   const request = await api.get("/students/day-plan");

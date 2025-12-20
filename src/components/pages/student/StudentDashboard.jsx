@@ -52,8 +52,8 @@ export default function StudentDashboard() {
   const { name: userName, surname: userSurname, email: userEmail, phone: userPhone } = pickName(userData);
   const userPatronym = userData?.student_patronym || userData?.patronym || userData?.middle_name || null;
   let studentsList = [];
-  console.log('students', students);
-  console.log(Array.isArray(students));
+  //console.log('students', students);
+  //console.log(Array.isArray(students));
   if (Array.isArray(students)) {
     studentsList = students;
   }
@@ -74,7 +74,7 @@ export default function StudentDashboard() {
           {userLoading ? (
             <div>Завантаження інформації учнів...</div>
           ) : (
-            <div>Загалом учнів у системі: {studentsCount ?? 0}</div>
+            <h2>Загалом учнів у системі: {studentsCount ?? 0}</h2>
           )}
         </div>
 

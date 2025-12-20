@@ -4,7 +4,6 @@ import { useWeeklyTimetable } from "../../../hooks/timetables/queries/useWeeklyT
 import { useUserData } from "../../../hooks/users/queries/useUserData";
 import { getCurrentStudentId, getCurrentUser } from "../../../utils/auth";
 
-const times = ['08:30', '09:20', '10:10', '11:00', '11:50', '12:40', '13:30', '14:20'];
 const days = ['Понеділок','Вівторок','Середа','Четвер','Пʼятниця'];
 
 export default function StudentSchedule({ studentClass: propStudentClass }) {
@@ -85,7 +84,7 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
     timesFromData.sort();
   }
 
-  const timesList = timesFromData.length ? timesFromData : times;
+  const timesList = timesFromData.length ? timesFromData : [];
 
   const handleLessonClick = (lesson) => {
     if (lesson) {

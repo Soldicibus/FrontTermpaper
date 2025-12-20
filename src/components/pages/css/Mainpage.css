@@ -67,6 +67,19 @@
   background-color: #d4edda;
   transition: background-color 0.3s;
 }
+.card button {
+  background-color: #4b9771;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+.card button:hover {
+  background-color: #8bdca29d;
+  transition: background-color 0.3s;
+}
 .features {
   width: 90%;
   max-width: 1100px;

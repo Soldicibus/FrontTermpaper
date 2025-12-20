@@ -3,6 +3,7 @@ import "./css/Mainpage.css";
 import { decodeToken } from '../../utils/jwt';
 import { useLogout, useUserData } from "../../hooks/users";
 import { useNavigate } from "react-router-dom";
+import api from "../../api/lib/api";
 
 export default function Cabinet() {
     const logout = useLogout();
@@ -13,6 +14,17 @@ export default function Cabinet() {
 
   const { data: userRes, isLoading, error } = useUserData(userId);
   const user = userRes?.userData ?? userRes?.user ?? userRes ?? null;
+
+  const isApiDev = import.meta.env?.VITE_API_DEV === 'true';
+
+  const logDbRole = async () => {
+    try {
+      const res = await api.get('/debug/db-role');
+      console.log('[debug] db role snapshot:', res.data);
+    } catch (e) {
+      console.error('[debug] failed to fetch db role snapshot:', e);
+    }
+  };
 
     const onLogout = () => {
         logout();
@@ -44,6 +56,16 @@ export default function Cabinet() {
                       <p>Користувача не знайдено</p>
                     )}
                     <button onClick={onLogout}>Вийти</button>
+
+                    {isApiDev && (
+                      <button
+                        onClick={logDbRole}
+                        aria-hidden="true"
+                      >
+                        Debug DB Role
+                      </button>
+                    )}
+
                 </div>
             </div>
         </main>

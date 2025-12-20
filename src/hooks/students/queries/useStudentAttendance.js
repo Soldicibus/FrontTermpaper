@@ -1,12 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import * as studentAPI from "../../../api/studentAPI.js";
 
-export function useStudentAttendance() {
+export function useStudentAttendance(id) {
   return useQuery({
-    queryKey: ["students", "attendance"],
-    queryFn: studentAPI.getStudentsAttendance,
+    queryKey: ["students", "attendance", id],
+    queryFn: () => studentAPI.getStudentsAttendance(id),
   });
 }
 
 // Backwards-compatible name used by some pages
-export const useStudentAttendanceReport = useStudentAttendance;
+export const useStudentAttendanceReport = (id) => useStudentAttendance(id);

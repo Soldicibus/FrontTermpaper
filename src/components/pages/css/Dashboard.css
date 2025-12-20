@@ -137,11 +137,12 @@
 .attendance-summary th,
 .attendance-summary td {
   padding: 6px 10px;
-  text-align: left;
+  text-align: center;
   border-bottom: 1px solid rgba(0,0,0,0.06);
 }
 .attendance-status {
   margin-top: 8px;
+    text-align: center;
   font-size: 0.95rem;
 }
 .attendance-ok {
