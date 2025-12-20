@@ -9,37 +9,41 @@ import StudentRanking from "./StudentRanking";
 import { useStudents } from "../../../hooks/students/queries/useStudents";
 import { useStudent } from "../../../hooks/students/queries/useStudent";
 import { useUserData } from "../../../hooks/users/queries/useUserData";
-import { useClass } from "../../../hooks/classes/queries/useClass";
-import { useUserRoles } from "../../../hooks/userroles/queries/useUserRoles";
 import { decodeToken } from "../../../utils/jwt";
 
 export default function StudentDashboard() {
   const [tab, setTab] = useState("journal");
-  const { data: students, isLoading } = useStudents();
-
+  const { data: students, isLoading: studentsLoading } = useStudents();
   // Derive user id from token and fetch user profile to obtain linked student id
   const token = localStorage.getItem('accessToken');
   const payload = token ? decodeToken(token) : null;
   const userId = payload?.userId || payload?.id || payload?.sub || null;
-  const { data: userData, isLoading: userLoading } = useUserData(userId);
-  const { data: userRoles, isLoading: rolesLoading } = useUserRoles(userId, { enabled: !!userId });
-
+  const { data: userRes, isLoading: userLoading } = useUserData(userId);
+  const userData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
+  // The token contains the role
+  const userRole = payload?.role || payload?.role_name || null;
   // Check if user has student role
-  const rolesArr = Array.isArray(userRoles) ? userRoles : (userRoles?.roles ? userRoles.roles : (userRoles?.role ? [userRoles.role] : []));
-  const normalizedRoles = rolesArr.map(r => (typeof r === 'string' ? r : (r.role_name || r.name || r)).toString().toLowerCase());
-  const hasStudentRole = normalizedRoles.includes('student');
+  const hasStudentRole = typeof userRole === 'string' && userRole.toLowerCase() === 'student';
 
   // support new `entity_id` returned by /users/:id/data (mapped to student/teacher/parent)
-  const entityId = userData?.entity_id || userData?.entityId || null;
-  // userData may contain a student_id or studentId field; use that, otherwise if user is a student use entityId
-  const linkedStudentId = userData?.student_id || userData?.studentId || userData?.student || (hasStudentRole ? entityId : null);
+  const linkedStudentId = userData?.entity_id || userData?.entityId || null;
+  const { data: student, isLoading: studentLoading } = useStudent(linkedStudentId);
+
+  const className =
+    student?.student_class ||
+    student?.student_class_name ||
+    student?.class ||
+    userData?.student_class ||
+    userData?.class ||
+    userData?.class_name ||
+    '—';
 
   // normalize display fields from userData - DB function may return various column names
   function pickName(u) {
     if (!u) return { name: null, surname: null, email: null, phone: null };
     // Prefer student-specific fields when available
-    const name = u.student_name || u.name || u.first_name || u.firstname || u.given_name || u.entity_name || u.username || null;
-    const surname = u.student_surname || u.surname || u.last_name || u.lastname || u.family_name || null;
+    const name = u.student_name || u.name || u.username || null;
+    const surname = u.student_surname || u.surname || null;
     const patronym = u.student_patronym || u.patronym || u.middle_name || null;
     const email = u.student_email || u.email || u.user_email || u.contact_email || null;
     const phone = u.student_phone || u.phone || u.mobile || u.telephone || u.contact_phone || null;
@@ -47,19 +51,17 @@ export default function StudentDashboard() {
   }
   const { name: userName, surname: userSurname, email: userEmail, phone: userPhone } = pickName(userData);
   const userPatronym = userData?.student_patronym || userData?.patronym || userData?.middle_name || null;
+  let studentsList = [];
+  console.log('students', students);
+  console.log(Array.isArray(students));
+  if (Array.isArray(students)) {
+    studentsList = students;
+  }
+  const studentsCount = Array.isArray(studentsList) ? studentsList.length : null;
 
-  // also ensure we can read class from student_class
-  const studentClassFromUser = userData?.student_class || userData?.studentClass || null;
-
-  // Do not attempt automatic contact-based lookup; rely on an explicit linked student id
-  const effectiveStudentId = linkedStudentId || null;
-  const { data: currentStudent, isLoading: studentLoading } = useStudent(effectiveStudentId);
-  // Determine class id or name from student record
-  const rawClass = currentStudent?.class_id || currentStudent?.student_class || userData?.classId || userData?.class || userData?.class_name || null;
-  // If rawClass looks like an integer id, fetch class details
-  const numericClassId = rawClass && !Number.isNaN(Number(rawClass)) ? Number(rawClass) : null;
-  const { data: classData, isLoading: classLoading } = useClass(numericClassId);
-  const className = classLoading ? null : (classData?.class_name || classData?.name || rawClass || null);
+  if (import.meta.env?.VITE_API_DEV === 'true') {
+    console.log('DEBUG: StudentDashboard render', { userId, linkedStudentId, hasStudentRole, userData, student, studentsCount });
+  }
 
   return (
     <main className="main">
@@ -69,10 +71,10 @@ export default function StudentDashboard() {
 
       <div className="main__content">
         <div className="card small">
-          {isLoading ? (
+          {userLoading ? (
             <div>Завантаження інформації учнів...</div>
           ) : (
-            <div>Загалом учнів у системі: {students?.length ?? 0}</div>
+            <div>Загалом учнів у системі: {studentsCount ?? 0}</div>
           )}
         </div>
 
@@ -97,19 +99,19 @@ export default function StudentDashboard() {
              // show profile from userData even if not linked, and indicate automatic lookup status
              <div>
               <h2>{userName || userData?.name || '—'} {userPatronym ? `${userPatronym}` : ''} {userSurname || userData?.surname || ''}</h2>
-              <p>Клас: {classLoading ? 'Завантаження...' : (classData?.class_name || classData?.name || studentClassFromUser || rawClass || '—')}</p>
-               {entityId && <div style={{ marginTop: 6, fontSize: 13, color: '#666' }}>Знайдено entity_id: {entityId} — використовується для зв'язування з профілем учня.</div>}
+              <p>Клас: {className}</p>
+               {linkedStudentId && <div style={{ marginTop: 6, fontSize: 13, color: '#666' }}>Знайдено entity_id: {linkedStudentId} — використовується для зв'язування з профілем учня.</div>}
               <p>Телефон: {userPhone || '—'}</p>
               <p>Пошта: {userEmail || '—'}</p>
              </div>
            ) : studentLoading ? (
              <div>Завантаження профілю учня...</div>
-           ) : currentStudent ? (
+           ) : student ? (
              <div>
-              <h2>{currentStudent.name || userName || currentStudent.student_name} {currentStudent.patronym || userPatronym || currentStudent.student_patronym || ''} {currentStudent.surname || userSurname || currentStudent.student_surname}</h2>
-              <p>Клас: {classLoading ? 'Завантаження...' : (classData?.class_name || classData?.name || rawClass || '—')}</p>
-              <p>Телефон: {currentStudent.phone || currentStudent.student_phone || userPhone || '—'}</p>
-              <p>Пошта: {currentStudent.email || currentStudent.student_email || userEmail || '—'}</p>
+              <h2>{student.name || userName || student.student_name} {student.patronym || userPatronym || student.student_patronym || ''} {student.surname || userSurname || student.student_surname}</h2>
+              <p>Клас: {className}</p>
+              <p>Телефон: {student.phone || student.student_phone || userPhone || '—'}</p>
+              <p>Пошта: {student.email || student.student_email || userEmail || '—'}</p>
              </div>
            ) : (
             <div>Немає профілю учня (увійдіть або зв'яжіться з адміністратором)</div>
@@ -157,12 +159,11 @@ export default function StudentDashboard() {
       </div>
 
       <div className="tab-content">
-        {tab === "journal" && <StudentJournal studentId={effectiveStudentId} />}
-        {tab === "homework" && <StudentHomework studentId={effectiveStudentId} studentClass={className} />}
+        {tab === "journal" && <StudentJournal studentId={linkedStudentId} />}
+        {tab === "homework" && <StudentHomework studentId={linkedStudentId} studentClass={className} />}
         {tab === "schedule" && <StudentSchedule studentClass={className} />}
         {tab === "materials" && <StudentMaterials studentClass={className} />}
-        {tab === "dayplan" && <StudentDayPlan studentId={effectiveStudentId} />}
-        {tab === "grades" && <StudentGradesAndAbsences enabled={true} studentId={effectiveStudentId} />}
+        {tab === "grades" && <StudentGradesAndAbsences enabled={true} studentId={linkedStudentId} />}
         {tab === "ranking" && <StudentRanking />}
       </div>
     </main>

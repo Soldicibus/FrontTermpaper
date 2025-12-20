@@ -17,7 +17,12 @@ export default function StudentJournal({ studentId: propStudentId }) {
   const studentId = propStudentId || getCurrentStudentId();
   const { data: marks7d, isLoading: marksLoading, error } = useStudentDataMarks7d(studentId);
 
-  const entries = Array.isArray(marks7d) ? marks7d : [];
+  const entries = [];
+  if (Array.isArray(marks7d) && marks7d.length > 0) {
+    entries.push(...marks7d);
+  } else if (marks7d && Array.isArray(marks7d.marks) && marks7d.marks.length > 0) {
+    entries.push(...marks7d.marks);
+  }
 
   return (
     <div className="card journal-card">

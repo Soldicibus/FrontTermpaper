@@ -9,9 +9,10 @@ export default function Cabinet() {
     const navigate = useNavigate();
     const token = localStorage.getItem('accessToken');
     const payload = token ? decodeToken(token) : null;
-    const userId = payload?.userId || payload?.id || payload?.sub || null;
+    const userId = payload?.userId || payload?.id || payload?.user_id || null;
 
-    const { data: user, isLoading, error } = useUserData(userId);
+  const { data: userRes, isLoading, error } = useUserData(userId);
+  const user = userRes?.userData ?? userRes?.user ?? userRes ?? null;
 
     const onLogout = () => {
         logout();
@@ -37,7 +38,7 @@ export default function Cabinet() {
                         <p>По-батькові: {user?.patronym || '—'}</p>
                         <p>Пошта: {user?.email || '—'}</p>
                         <p>Телефон: {user?.phone || '—'}</p>
-                        <p>Роль: {user?.role || '—'}</p>
+                        <p>Роль: {user?.role || payload?.role || '—'}</p>
                       </>
                     ) : (
                       <p>Користувача не знайдено</p>

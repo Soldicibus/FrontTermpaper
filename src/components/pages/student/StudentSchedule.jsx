@@ -13,7 +13,8 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
   const tokenStudentId = getCurrentStudentId();
   const currentUser = getCurrentUser();
   const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
-  const { data: userData, isLoading: userDataLoading } = useUserData(userId, { enabled: !!userId });
+  const { data: userRes, isLoading: userDataLoading } = useUserData(userId, { enabled: !!userId });
+  const userData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
 
   // Resolve studentId from token first, otherwise from userData.entity_id or userData.student_id
   let resolvedStudentId = tokenStudentId || null;
@@ -47,7 +48,9 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
     timetableId = extractIdFromObj(timetables);
   }
 
-  console.log('student schedule: resolvedStudentId, timetables response', { userId, tokenStudentId, resolvedStudentId, userData, timetables, timetableId });
+  if (import.meta?.env?.DEV) {
+    console.log('student schedule: resolvedStudentId, timetables response', { userId, tokenStudentId, resolvedStudentId, userData, timetables, timetableId });
+  }
 
   const { data: weekRows, isLoading: weekLoading } = useWeeklyTimetable(timetableId, { enabled: !!timetableId });
   const loading = timetablesLoading || weekLoading;
@@ -65,9 +68,11 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
     weekRows.forEach(r => {
       const day = normalizeDayName(r.weekday || r.weekday_name || r.day || r.week);
       const t = (r.lesson_time || r.lesson_time || r.lesson || r.time || '').toString().slice(0,5);
+      const c = (r.cabinet || r.room || '').toString().trim();
       sample[day] = sample[day] || [];
       sample[day].push({ 
         time: t, 
+        cabinet: c,
         subject: r.subject,
         subject_id: r.subject_id,
         teacher: r.teacher || r.teacher_name,
@@ -117,6 +122,7 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
                         style={{ cursor: 'pointer' }}
                       >
                         <div className="lesson-subject">{found.subject}</div>
+                        <div className="lesson-subject">{found.cabinet}</div>
                       </div>
                     ) : null}
                   </div>
@@ -171,6 +177,13 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
                 <div>
                   <strong style={{ color: '#777' }}>Час:</strong>
                   <div style={{ marginTop: '4px', color: '#000000ff' }}>{selectedSubject.time}</div>
+                </div>
+              )}
+
+              {selectedSubject.cabinet && (
+                <div>
+                  <strong style={{ color: '#777' }}>Кабінет:</strong>
+                  <div style={{ marginTop: '4px', color: '#000000ff' }}>{selectedSubject.cabinet}</div>
                 </div>
               )}
             </div>

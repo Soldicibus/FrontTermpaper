@@ -43,13 +43,13 @@ function App() {
       <Routes>
         <Route path="/auth" element={<Auth />} />
         <Route path="/" element={<Mainpage />} />
-        <Route path="/student/dashboard" element={<RequireAuth><StudentDashboard /></RequireAuth>} />
-        <Route path="/admin" element={<RequireAuth><RequireRole allowedRoles={["admin"]}><AdminPanel /></RequireRole></RequireAuth>} />
-        <Route path="/parent/overview" element={<RequireAuth><RequireRole allowedRoles={["parent"]}><ParentOverview /></RequireRole></RequireAuth>} />
-        <Route path="/teacher/classes" element={<RequireAuth><RequireRole allowedRoles={["teacher"]}><TeacherClasses /></RequireRole></RequireAuth>} />
-        <Route path="/teacher/class/:id" element={<RequireAuth><RequireRole allowedRoles={["teacher"]}><TeacherClassView /></RequireRole></RequireAuth>} />
+        <Route path="/student/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Student","Admin","SAdmin"]}><StudentDashboard /></RequireRole></RequireAuth>} />
+        <Route path="/admin" element={<RequireAuth><RequireRole allowedRoles={["Admin","SAdmin"]}><AdminPanel /></RequireRole></RequireAuth>} />
+        <Route path="/parent/overview" element={<RequireAuth><RequireRole allowedRoles={["Parent","Admin","SAdmin"]}><ParentOverview /></RequireRole></RequireAuth>} />
+        <Route path="/teacher/classes" element={<RequireAuth><RequireRole allowedRoles={["Teacher","Admin","SAdmin"]}><TeacherClasses /></RequireRole></RequireAuth>} />
+        <Route path="/teacher/class/:id" element={<RequireAuth><RequireRole allowedRoles={["Teacher","Admin","SAdmin"]}><TeacherClassView /></RequireRole></RequireAuth>} />
         <Route path="/cabinet" element={<RequireAuth><Cabinet /></RequireAuth>} />
-        <Route path="/student/ranking" element={<RequireAuth><RequireRole allowedRoles={["teacher","admin"]}><StudentRanking /></RequireRole></RequireAuth>} />
+        <Route path="/student/ranking" element={<RequireAuth><RequireRole allowedRoles={["Teacher","Admin","SAdmin"]}><StudentRanking /></RequireRole></RequireAuth>} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>

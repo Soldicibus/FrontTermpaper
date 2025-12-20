@@ -4,8 +4,12 @@ import { getCurrentUserClass } from "../../../utils/auth";
 
 export default function StudentMaterials({ studentClass: propStudentClass }) {
   const { data: materials, isLoading } = useMaterials();
-  const studentClass = propStudentClass || getCurrentUserClass();
-  let list = Array.isArray(materials) && materials.length ? materials : [];
+  let list = [];
+  if (Array.isArray(materials) && materials.length > 0) {
+    list = materials;
+  } else if (materials && Array.isArray(materials.materials) && materials.materials.length > 0) {
+    list = materials.materials;
+  }
 
   return (
     <div>

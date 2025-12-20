@@ -2,17 +2,17 @@ import api from "./lib/api.js";
 
 export const getAllUsers = async () => {
   const request = await api.get("/users");
-  return request;
+  return request.data;
 };
 
 export const getUserById = async (id) => {
   const request = await api.get(`/users/${id}`);
-  return request;
+  return request.data;
 };
 
 export const getUserData = async (id) => {
   const request = await api.get(`/users/${id}/data`);
-  return request;
+  return request.data;
 };
 
 export const createUser = async (username, email, password) => {
@@ -21,14 +21,14 @@ export const createUser = async (username, email, password) => {
     email,
     password,
   });
-  return request;
+  return request.data;
 };
 export const resetPassword = async (user_id, p_new_password) => {
   const request = await api.post("/users/reset-password", {
     user_id,
     p_new_password,
   });
-  return request;
+  return request.data;
 };
 
 export const updateUser = async (id, username, email, password) => {
@@ -37,10 +37,10 @@ export const updateUser = async (id, username, email, password) => {
     email,
     password,
   });
-  return request;
+  return request.data;
 };
 
 export const deleteUser = async (id) => {
   const request = await api.delete(`/users/${id}`);
-  return request;
+  return request.data;
 };

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { getCurrentUser, isAuthenticated } from '../utils/auth';
-import { useUserRoles } from '../hooks/userroles/queries/useUserRoles';
+import { decodeToken } from "../utils/jwt";
 import "./pages/css/Sidebar.css";
 
 export default function Sidebar() {
@@ -24,21 +24,20 @@ export default function Sidebar() {
     navigate({ pathname: location.pathname, search });
   };
 
-  // Determine user roles for conditional link rendering
-  const currentUser = getCurrentUser();
-  const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
-  const { data: rolesResp } = useUserRoles(userId, { enabled: !!userId });
-  const roles = (() => {
-    if (!rolesResp) return [];
-    if (Array.isArray(rolesResp)) return rolesResp.map(r => (typeof r === 'string' ? r : (r.role_name || r.name || r)) );
-    if (rolesResp.roles) return rolesResp.roles.map(r => (typeof r === 'string' ? r : (r.role_name || r.name || r)) );
-    if (rolesResp.role) return [ (typeof rolesResp.role === 'string' ? rolesResp.role : (rolesResp.role.role_name || rolesResp.role.name || '')) ];
-    return [];
-  })();
+  // Determine current role from JWT (fast, avoids an extra request).
+  // Note: this reflects the "active" role at the time the token was issued.
+  const token = localStorage.getItem('accessToken');
+  const payload = token ? decodeToken(token) : null;
+  const tokenRole = payload?.role ?? payload?.role_name ?? null;
+  const tokenRoles = Array.isArray(payload?.roles) ? payload.roles : [];
+
+  const roles = [tokenRole, ...tokenRoles]
+    .filter(Boolean)
+    .map((r) => String(r).toLowerCase());
 
   function hasRole(name) {
-    if (!roles || !roles.length) return false;
-    return roles.some(r => String(r).toLowerCase() === String(name).toLowerCase());
+    if (!roles.length) return false;
+    return roles.includes(String(name).toLowerCase());
   }
 
   return (
@@ -92,22 +91,22 @@ export default function Sidebar() {
               Авторизація
             </Link>
           )}
-          {hasRole('teacher') && (
+          {(hasRole('teacher') || hasRole('admin') || hasRole('sadmin')) && (
             <Link to="/teacher/classes" onClick={closeSidebar}>
               Для вчителів
             </Link>
           )}
-          {hasRole('student') && (
+          {(hasRole('student') || hasRole('admin') || hasRole('sadmin')) && (
             <Link to="/student/dashboard" onClick={closeSidebar}>
               Для учнів
             </Link>
           )}
-          {hasRole('parent') && (
+          {(hasRole('parent') || hasRole('admin') || hasRole('sadmin')) && (
             <Link to="/parent/overview" onClick={closeSidebar}>
               Для батьків
             </Link>
           )}
-          {hasRole('admin') && (
+          {(hasRole('admin') || hasRole('sadmin')) && (
             <Link to="/admin" onClick={closeSidebar}>
               Панель адміністратора
             </Link>

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { decodeToken } from '../utils/jwt';
-import { useUserRoles } from '../hooks/userroles/queries/useUserRoles';
 import { useUserData } from '../hooks/users/queries/useUserData';
 
 // allowedRoles: array of role names or ids
@@ -9,38 +8,35 @@ export default function RequireRole({ allowedRoles = [], children }) {
   const location = useLocation();
   const token = localStorage.getItem('accessToken');
   const payload = token ? decodeToken(token) : null;
-  const userId = payload?.userId || payload?.id || payload?.sub || null;
+  const userId = payload?.userId || payload?.id || payload?.user_id || null;
 
-  const { data: rolesResponse, isLoading: loadingRoles, error: rolesError } = useUserRoles(userId);
-  const { data: userData, isLoading: loadingUser, error: userError } = useUserData(userId);
+  // Prefer role from token as a fast path, but treat server-returned role as source of truth.
+  const tokenRole = payload?.role || payload?.role_name || null;
+
+  const { data: userDataRes, isLoading: loadingUser, error: userError } = useUserData(userId);
 
   if (!userId) {
     return <Navigate to="/auth" state={{ from: location }} replace />;
   }
 
   // show nothing while we fetch role info
-  if (loadingRoles || loadingUser) return null;
-  if (rolesError || userError) return <Navigate to="/auth" state={{ from: location }} replace />;
+  if (loadingUser) return null;
+  if (userError) return <Navigate to="/auth" state={{ from: location }} replace />;
 
-  // normalize roles into array of strings (names or ids)
-  let normalized = [];
-  if (Array.isArray(rolesResponse)) {
-    // API might return an array directly
-    normalized = rolesResponse.map(r => {
-      if (typeof r === 'string' || typeof r === 'number') return String(r);
-      return String(r.role_name ?? r.name ?? r.role_id ?? r.id ?? '');
-    });
-  } else if (rolesResponse && typeof rolesResponse === 'object') {
-    // when API returns { roles: [...] }
-    const arr = rolesResponse.roles || [];
-    normalized = arr.map(r => String(r.role_name ?? r.name ?? r.role_id ?? r.id ?? r));
-  }
+  // `useUserData` returns the response body; unwrap common shapes.
+  const userData = userDataRes?.userData ?? userDataRes?.user ?? userDataRes;
 
-  if (userData && userData.role) normalized.push(String(userData.role));
+  const normalizedRoles = [];
+  if (tokenRole) normalizedRoles.push(String(tokenRole));
+  if (userData?.role) normalizedRoles.push(String(userData.role));
 
-  const userRoles = Array.from(new Set(normalized.filter(Boolean)));
+  // Normalize casing because backend may return 'Student' while routes use 'student'.
+  const userRoles = Array.from(
+    new Set(normalizedRoles.filter(Boolean).map(r => r.toLowerCase())),
+  );
+  const allowedRolesNorm = allowedRoles.map(r => String(r).toLowerCase());
 
-  const allowed = allowedRoles.length === 0 || allowedRoles.some(r => userRoles.includes(String(r)));
+  const allowed = allowedRolesNorm.length === 0 || allowedRolesNorm.some(r => userRoles.includes(r));
   if (!allowed) {
     // unauthorized - redirect to home
     return <Navigate to="/" replace />;

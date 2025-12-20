@@ -2,17 +2,19 @@ import api from "./lib/api.js";
 
 export const getAllJournals = async () => {
   const request = await api.get("/journals");
-  return request;
+  return request.data;
 };
 
 export const getJournalById = async (id) => {
   const request = await api.get(`/journals/${id}`);
-  return request;
+  const data = request.data;
+  return data.journal;
 };
 
 export const getJournalByStudent = async (studentId) => {
   const request = await api.get(`/journals/student/${studentId}`);
-  return request;
+  const data = request.data;
+  return data.journals;
 };
 
 export const createJournal = async (teacherId, name) => {

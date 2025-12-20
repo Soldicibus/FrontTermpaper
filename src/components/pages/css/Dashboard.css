@@ -242,8 +242,7 @@
 .lesson {
   background: rgba(255, 255, 255, 0.06);
   padding: 6px;
-  height: 40px;
-  margin-top: 10%;
+  height: 80px;
   border-radius: 6px;
 }
 .lesson-subject {

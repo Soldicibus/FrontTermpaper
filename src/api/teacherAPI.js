@@ -3,25 +3,25 @@ import api from "./lib/api.js";
 export const getTeachers = async () => {
   const request = await api.get("/teacher");
 
-  return request;
+  return request.data;
 };
 
 export const getTeacherSalaryReport = async () => {
   const request = await api.get("/teacher/salary");
 
-  return request;
+  return request.data;
 };
 
 export const getTeachersWithClasses = async () => {
   const request = await api.get("/teacher/with-classes");
 
-  return request;
+  return request.data;
 };
 
 export const getTeacherById = async (id) => {
   const request = await api.get(`/teacher/${id}`);
-
-  return request;
+  const data = request.data;
+  return data.teacher ?? data;
 };
 
 export const createTeacher = async (name, surname, patronym, phone) => {

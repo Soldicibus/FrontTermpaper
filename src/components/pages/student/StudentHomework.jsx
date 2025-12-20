@@ -13,7 +13,8 @@ export default function StudentHomework({ studentId: propStudentId, studentClass
   const tokenClass = propStudentClass || getCurrentUserClass();
   const currentUser = getCurrentUser();
   const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
-  const { data: userData, isLoading: userDataLoading } = useUserData(userId, { enabled: !!userId });
+  const { data: userRes, isLoading: userDataLoading } = useUserData(userId, { enabled: !!userId });
+  const userData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
 
   let resolvedStudentId = tokenStudentId || null;
   let resolvedClass = tokenClass || null;
@@ -39,7 +40,9 @@ export default function StudentHomework({ studentId: propStudentId, studentClass
   }
 
   const isLoading = homeworkLoading || userDataLoading || studentHomeworkLoading;
-  console.log('student homework: resolved', { userId, resolvedStudentId, resolvedClass, listLength: list.length });
+  if (import.meta?.env?.DEV) {
+    console.log('student homework: resolved', { userId, resolvedStudentId, resolvedClass, listLength: list.length });
+  }
 
   function formatDueDate(d) {
     if (!d) return '—';

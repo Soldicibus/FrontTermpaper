@@ -2,12 +2,13 @@ import api from "./lib/api.js";
 
 export const getAllClasses = async () => {
   const request = await api.get("/classes");
-  return request;
+  return request.data;
 };
 
 export const getClassById = async (id) => {
   const request = await api.get(`/classes/${id}`);
-  return request;
+  const data = request.data;
+  return data.class;
 };
 
 export const createClass = async (name, journalId, mainTeacherId) => {

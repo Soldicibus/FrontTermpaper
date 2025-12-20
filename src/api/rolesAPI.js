@@ -2,14 +2,13 @@ import api from "./lib/api.js";
 
 export const getAllRoles = async () => {
   const request = await api.get("/roles");
-
-  return request;
+  return request.data;
 };
 
 export const getRoleById = async (id) => {
   const request = await api.get(`/roles/${id}`);
-
-  return request;
+  const data = request.data;
+  return data.role;
 };
 
 export const createRole = async (roleName) => {

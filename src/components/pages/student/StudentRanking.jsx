@@ -38,7 +38,7 @@ export default function StudentRanking() {
   //  - axios response: { data: { students: [...] } }
 
   // Debug: log the ranking shape in dev
-  if (import.meta.env.DEV) {
+  if (import.meta?.env?.DEV) {
     console.log('StudentRanking: raw ranking value', ranking);
   }
 

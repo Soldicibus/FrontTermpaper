@@ -3,7 +3,7 @@ import api from "./lib/api.js";
 export const getRolesByUserId = async (userId) => {
   const request = await api.get(`/userroles/${userId}`);
 
-  return request;
+  return request.data;
 };
 
 export const assignRole = async (userId, roleId) => {
@@ -12,7 +12,7 @@ export const assignRole = async (userId, roleId) => {
     roleId,
   });
 
-  return request;
+  return request.data;
 };
 
 export const removeRoleFromUser = async (userId, roleId) => {
@@ -26,5 +26,5 @@ export const removeRoleFromUser = async (userId, roleId) => {
 export const getUserRole = async (userId) => {
   const request = await api.get(`/userroles/role/${userId}`);
 
-  return request;
+  return request.data;
 };

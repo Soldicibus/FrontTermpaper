@@ -3,7 +3,7 @@ import api from "./lib/api.js";
 export const getAllSubjects = async () => {
   const request = await api.get("/subjects");
 
-  return request;
+  return request.data;
 };
 
 export const createSubject = async (name, program) => {

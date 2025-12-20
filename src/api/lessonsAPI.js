@@ -2,12 +2,13 @@ import api from "./lib/api.js";
 
 export const getAllLessons = async () => {
   const request = await api.get("/lessons");
-  return request;
+  return request.data;
 };
 
 export const getLessonById = async (id) => {
   const request = await api.get(`/lessons/${id}`);
-  return request;
+  const data = request.data;
+  return data.lesson;
 };
 
 export const createLesson = async (

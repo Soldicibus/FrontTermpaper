@@ -3,13 +3,13 @@ import api from "./lib/api.js";
 export const getParents = async () => {
   const request = await api.get("/parents");
 
-  return request;
+  return request.data;
 };
 
 export const getParentById = async (id) => {
   const request = await api.get(`/parents/${id}`);
-
-  return request;
+  const data = request.data;
+  return data.parent;
 };
 
 export const createParent = async (name, surname, patronym, phone) => {

@@ -2,17 +2,18 @@ import api from "./lib/api.js";
 
 export const getAllStudentData = async () => {
   const request = await api.get("/studentdata");
-  return request;
+  return request.data;
 };
 
 export const getStudentDataById = async (id) => {
   const request = await api.get(`/studentdata/${id}`);
-  return request;
+  const data = request.data;
+  return data.studentData ?? data;
 };
 
 export const getStudentDataMarks7d = async (studentId) => {
   const request = await api.get(`/studentdata/journal/${studentId}`);
-  return request;
+  return request.data;
 };
 
 export const createStudentData = async (

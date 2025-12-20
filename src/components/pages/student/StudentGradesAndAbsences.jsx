@@ -8,14 +8,17 @@ export default function StudentGradesAndAbsences({ enabled = true, studentId: pr
   const tokenStudentId = propStudentId || getCurrentStudentId();
   const currentUser = getCurrentUser();
   const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
-  const { data: userData, isLoading: userDataLoading } = useUserData(userId, { enabled: !!userId });
+  const { data: userRes, isLoading: userDataLoading } = useUserData(userId, { enabled: !!userId });
+  const userData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
 
   // Resolve student id from token first, then userData.entity_id or userData.student_id
   let resolvedStudentId = tokenStudentId || null;
   if (!resolvedStudentId && userData) {
     resolvedStudentId = userData?.student_id || userData?.studentId || userData?.entity_id || userData?.entityId || null;
   }
-  console.log('student grades: resolvedStudentId', { tokenStudentId, userId, resolvedStudentId, userData });
+  if (import.meta?.env?.DEV) {
+    console.log('student grades: resolvedStudentId', { tokenStudentId, userId, resolvedStudentId, userData });
+  }
 
   const { data: gradesData, isLoading: gradesLoading, error } = useStudentGradesAndAbsences(resolvedStudentId, { enabled: enabled && !!resolvedStudentId });
   // fetch attendance totals for a wide range by default

@@ -2,22 +2,25 @@ import api from "./lib/api.js";
 
 export const getAllHomework = async () => {
   const request = await api.get("/homework");
-  return request;
+  const data = request.data;
+  return data?.homework ?? data?.rows ?? data;
 };
 
 export const getHomeworkById = async (id) => {
   const request = await api.get(`/homework/${id}`);
-  return request;
+  return request.data;
 };
 
 export const getHomeworkByStudentOrClass = async (studentId) => {
   const request = await api.get(`/homework/by-student-or-class/${studentId}`);
-  return request;
+  const data = request.data;
+  return data?.homework ?? data?.rows ?? data;
 };
 
 export const getHomeworkForTomorrow = async () => {
   const request = await api.get("/homework/for-tomorrow");
-  return request;
+  const data = request.data;
+  return data?.homework ?? data?.rows ?? data;
 };
 
 export const createHomework = async (
@@ -34,7 +37,7 @@ export const createHomework = async (
     subjectId,
     classId,
   });
-  return request;
+  return request.data;
 };
 
 export const updateHomework = async (id, name, description, dueDate) => {
@@ -43,10 +46,10 @@ export const updateHomework = async (id, name, description, dueDate) => {
     description,
     dueDate,
   });
-  return request;
+  return request.data;
 };
 
 export const deleteHomework = async (id) => {
   const request = await api.delete(`/homework/${id}`);
-  return request;
+  return request.data;
 };
