@@ -4,14 +4,14 @@ import { useUserData } from '../../../hooks/users/queries/useUserData';
 import { getCurrentStudentId, getCurrentUser } from '../../../utils/auth';
 
 export default function StudentGradesAndAbsences({ enabled = true, studentId: propStudentId }) {
-  const tokenStudentId = propStudentId || getCurrentStudentId();
+  const tokenStudentId = getCurrentStudentId();
   const currentUser = getCurrentUser();
   const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
   const { data: userRes, isLoading: userDataLoading } = useUserData(userId, { enabled: !!userId });
   const userData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
 
   // Resolve student id from token first, then userData.entity_id or userData.student_id
-  let resolvedStudentId = tokenStudentId || null;
+  let resolvedStudentId = propStudentId || tokenStudentId;
   if (!resolvedStudentId && userData) {
     resolvedStudentId = userData?.student_id || userData?.studentId || userData?.entity_id || userData?.entityId || null;
   }

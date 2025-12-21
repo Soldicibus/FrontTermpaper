@@ -5,6 +5,7 @@ export function useStudentAttendance(id) {
   return useQuery({
     queryKey: ["students", "attendance", id],
     queryFn: () => studentAPI.getStudentsAttendance(id),
+    enabled: !!id,
   });
 }
 

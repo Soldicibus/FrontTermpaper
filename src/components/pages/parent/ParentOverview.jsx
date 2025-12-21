@@ -1,9 +1,53 @@
-import React from "react";
+import React, { useState, useEffect, use, useMemo } from "react";
 import { useStudentsByParent } from "../../../hooks/students/queries/useStudentByParent";
+import { useGetChildren } from "../../../hooks/studentparents/queries/useGetChildren";
+import { useUserData } from "../../../hooks/users/queries/useUserData";
+import { getCurrentUser } from "../../../utils/auth";
+import StudentSchedule from "../student/StudentSchedule";
+import StudentGradesAndAbsences from "../student/StudentGradesAndAbsences";
+import StudentJournal from "../student/StudentJournal";
 
 export default function ParentOverview() {
-  const parentId = 1; // TODO: get from auth
-  const { data: students, isLoading, error } = useStudentsByParent(parentId);
+  const currentUser = getCurrentUser();
+  const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
+  
+  const { data: userRes, isLoading: userLoading } = useUserData(userId);
+  
+  // Unwrap user data safely - handling potential double nesting
+  const rawUserData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
+  const userData = rawUserData?.userData ?? rawUserData;
+  
+  const parentId = userData?.entity_id || userData?.entityId || userData?.parent_id || userData?.parentId || null;
+  
+  if (import.meta.env.DEV) {
+    console.log('ParentOverview: userId', userId);
+    console.log('ParentOverview: userRes', userRes);
+    console.log('ParentOverview: userData (unwrapped)', userData);
+    console.log('ParentOverview: parentId', parentId);
+  }
+
+  const { data: students, isLoading, error } = useGetChildren(parentId);
+  
+  if (import.meta.env.DEV) {
+    console.log('ParentOverview: students', students);
+  }
+
+  const [selectedStudentId, setSelectedStudentId] = useState(null);
+  const [activeTab, setActiveTab] = useState("schedule");
+
+  if (import.meta.env.DEV) {
+    console.log('ParentOverview: selectedStudentId', selectedStudentId);
+  }
+
+  useEffect(() => {
+    if (Array.isArray(students) && students.length > 0 && !selectedStudentId) {
+      setSelectedStudentId(students[0].id || students[0].student_id);
+    }
+  }, [students, selectedStudentId]);
+
+  const selectedStudent = Array.isArray(students) 
+    ? students.find(s => (s.id || s.student_id) === selectedStudentId) 
+    : null;
 
   return (
     <main className="main">
@@ -14,24 +58,78 @@ export default function ParentOverview() {
       <div className="card">
         {isLoading && <div>Завантаження дітей...</div>}
         {error && <div>Помилка завантаження</div>}
+        
         {!isLoading && Array.isArray(students) && students.length > 0 ? (
           <div>
-            <h2>Діти</h2>
-            <ul>
-              {students.map((s) => (
-                <li key={s.id}>
-                  {s.name} {s.surname} — Клас: {s.class_c || "—"}
-                </li>
-              ))}
-            </ul>
+            <div style={{ marginBottom: 20 }}>
+              <h2>Мої діти</h2>
+              <div className="student-selector" style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                {students.map((s) => {
+                  const sId = s.id || s.student_id;
+                  const isSelected = sId === selectedStudentId;
+                  return (
+                    <button
+                      type="button"
+                      key={sId}
+                      className={isSelected ? "active" : ""}
+                      onClick={() => {
+  console.log("CLICKED student:", sId);
+  setSelectedStudentId(sId);
+}}
+
+                    >
+                      {s.student_name} {s.student_surname} {s.student_class ? `(${s.student_class})` : ""}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {selectedStudentId && (
+              <>
+                <div className="tabs" style={{ marginBottom: 16 }}>
+                  <button
+                    className={activeTab === "schedule" ? "active" : ""}
+                    onClick={() => setActiveTab("schedule")}
+                  >
+                    Розклад
+                  </button>
+                  <button
+                    className={activeTab === "grades" ? "active" : ""}
+                    onClick={() => setActiveTab("grades")}
+                  >
+                    Оцінки та відвідуваність
+                  </button>
+                  <button
+                    className={activeTab === "journal" ? "active" : ""}
+                    onClick={() => setActiveTab("journal")}
+                  >
+                    Журнал
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div style={{ marginTop: 20 }}>
+                  {activeTab === "schedule" && (
+                    <StudentSchedule studentId={selectedStudentId} />
+                  )}
+                  {activeTab === "grades" && (
+                    <StudentGradesAndAbsences studentId={selectedStudentId} />
+                  )}
+                  {activeTab === "journal" && (
+                    <StudentJournal studentId={selectedStudentId} />
+                  )}
+                </div>
+              </>
+            )}
           </div>
         ) : (
-          <div>
-            <h2>Дитина: Чуківський Микола</h2>
-            <p>Клас: 11-А</p>
-            <p>Середній бал: 12</p>
-            <p>Відвідуваність: 500%</p>
-          </div>
+          !isLoading && (
+            <div>
+              <h2>Немає прив'язаних дітей</h2>
+              <p>Зверніться до адміністратора для прив'язки учнів до вашого акаунту.</p>
+            </div>
+          )
         )}
       </div>
     </main>

@@ -41,6 +41,33 @@
   color: var(--primary);
   font-weight: 700;
 }
+
+/* Add style for student selector buttons */
+.student-selector button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.student-selector button.active {
+  background: #fff;
+  color: var(--primary);
+  font-weight: 700;
+  border-color: #fff;
+}
+
+.student-selector button:hover:not(.active) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.student-selector button:hover {
+  background-color: #6cd5a0;
+  transition: 300ms;
+}
 .tab-content {
   margin-top: 12px;
 }

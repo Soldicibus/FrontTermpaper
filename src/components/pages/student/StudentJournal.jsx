@@ -14,8 +14,9 @@ function formatDate(value) {
 }
 
 export default function StudentJournal({ studentId: propStudentId }) {
-  const studentId = propStudentId || getCurrentStudentId();
-  const { data: marks7d, isLoading: marksLoading, error } = useStudentDataMarks7d(studentId);
+  const tokenStudentId = getCurrentStudentId();
+  const studentId = propStudentId || tokenStudentId;
+  const { data: marks7d, isLoading: marksLoading, error } = useStudentDataMarks7d(studentId, { enabled: !!studentId });
 
   const entries = [];
   if (Array.isArray(marks7d) && marks7d.length > 0) {

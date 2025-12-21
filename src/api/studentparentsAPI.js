@@ -6,6 +6,12 @@ export const getParentsByStudentId = async (studentId) => {
   return data.parents ?? data;
 };
 
+export const getChildren = async (parentId) => {
+  const request = await api.get(`/studentparents/children/${parentId}`);
+  const data = request.data;
+  return data.students ?? data;
+}
+
 export const assignParentToStudent = async (studentId, parentId) => {
   const request = await api.post("/studentparents/assign", {
     studentId,
