@@ -9,6 +9,7 @@ import { useSubjects } from "../../../hooks/subjects/queries/useSubjects";
 import { useMaterials } from "../../../hooks/materials/queries/useMaterials";
 import { useUserData } from "../../../hooks/users/queries/useUserData";
 import { getCurrentUser } from "../../../utils/auth";
+import { useStudent } from "../../../hooks/students/queries/useStudent";
 
 function formatDateShort(value) {
   if (!value) return "—";
@@ -65,6 +66,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
   const createStudentData = useCreateStudentData();
   const updateStudentData = useUpdateStudentData();
   const deleteStudentData = useDeleteStudentData();
+  const { data: student } = useStudent(studentId);
   const createLesson = useCreateLesson();
 
   const { data: subjects } = useSubjects();
@@ -152,16 +154,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
       if (form.lessonMode === "new") {
         const newLessonRes = await createLesson.mutateAsync({
           name: form.newLessonName,
-          className: "", // We don't have class name here easily, maybe optional or fetch?
-          // Assuming className is not strictly required or we can pass a placeholder if needed
-          // But wait, lessons usually need a class. 
-          // For now let's assume the user picks an existing lesson or we need to pass className prop.
-          // If className is needed, we should add it to props.
-          // Let's try without it or use a placeholder if the backend allows.
-          // Actually, TeacherClassView has className. We should pass it down.
-          // For now, let's use a placeholder or empty string if backend allows.
-          // Checking backend: className is required.
-          // We need to add className prop to TeacherStudentJournal.
+          className: student?.class_name || student?.className || student?.student_class || "",
           subjectId: form.newLessonSubject,
           materialId: form.newLessonMaterial,
           teacherId: teacherId,
@@ -379,8 +372,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
             </div>
 
             <div style={{ opacity: 0.9 }}>
-              Цю дію не можна буде скасувати. (Поки що це шаблон — реального
-              видалення ще немає.)
+              Цю дію не можна буде скасувати.
             </div>
 
             <div style={buttonRowStyle}>
@@ -443,7 +435,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
                 <div style={{ fontWeight: 700 }}>Коментар</div>
                 <textarea
                   rows={3}
-                  placeholder="(необов'язково)"
+                  placeholder="Гарна робота!"
                   value={form.note}
                   onChange={e => setForm({...form, note: e.target.value})}
                   style={{ padding: 10, borderRadius: 10, border: "1px solid #e6e6e6" }}
@@ -510,7 +502,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
                 <div style={{ fontWeight: 700 }}>Коментар</div>
                 <textarea
                   rows={3}
-                  placeholder="(необов'язково)"
+                  placeholder="Гарна робота!"
                   value={form.note}
                   onChange={e => setForm({...form, note: e.target.value})}
                   style={{ padding: 10, borderRadius: 10, border: "1px solid #e6e6e6" }}

@@ -16,14 +16,14 @@ export const getStudentDataMarks7d = async (studentId) => {
   return request.data;
 };
 
-export const createStudentData = async (
+export const createStudentData = async ({
   journalId,
   studentId,
   lesson,
   mark,
   status,
   note,
-) => {
+}) => {
   const request = await api.post("/studentdata", {
     journalId,
     studentId,
@@ -35,7 +35,7 @@ export const createStudentData = async (
   return request;
 };
 
-export const updateStudentData = async (
+export const updateStudentData = async ({
   id,
   journalId,
   studentId,
@@ -43,7 +43,7 @@ export const updateStudentData = async (
   mark,
   status,
   note,
-) => {
+}) => {
   const request = await api.patch(`/studentdata/${id}`, {
     journalId,
     studentId,
