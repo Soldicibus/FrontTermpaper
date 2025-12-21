@@ -23,28 +23,41 @@ export const getHomeworkForTomorrow = async () => {
   return data?.homework ?? data?.rows ?? data;
 };
 
-export const createHomework = async (
+export const createHomework = async ({
   name,
-  description,
+  teacherId,
+  lessonId,
   dueDate,
-  subjectId,
-  classId,
-) => {
+  description,
+  className,
+}) => {
   const request = await api.post("/homework", {
     name,
-    description,
+    teacherId,
+    lessonId,
     dueDate,
-    subjectId,
-    classId,
+    description,
+    className,
   });
   return request.data;
 };
 
-export const updateHomework = async (id, name, description, dueDate) => {
+export const updateHomework = async ({
+  id,
+  name,
+  teacherId,
+  lessonId,
+  dueDate,
+  description,
+  className,
+}) => {
   const request = await api.patch(`/homework/${id}`, {
     name,
-    description,
+    teacherId,
+    lessonId,
     dueDate,
+    description,
+    className,
   });
   return request.data;
 };

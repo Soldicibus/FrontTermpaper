@@ -4,10 +4,9 @@ import { useWeeklyTimetable } from "../../../hooks/timetables/queries/useWeeklyT
 import { useUserData } from "../../../hooks/users/queries/useUserData";
 import { getCurrentStudentId, getCurrentUser } from "../../../utils/auth";
 
-const days = ['Понеділок','Вівторок','Середа','Четвер','Пʼятниця'];
-
-export default function StudentSchedule({ studentClass: propStudentClass }) {
+export default function StudentSchedule({ studentId: propStudentId, studentClass: propStudentClass }) {
   const [selectedSubject, setSelectedSubject] = useState(null);
+  const days = ['Понеділок','Вівторок','Середа','Четвер','Пʼятниця'];
   // Prefer timetable by student id. If token doesn't include studentId, fetch user data and use its entity_id/student_id.
   const tokenStudentId = getCurrentStudentId();
   const currentUser = getCurrentUser();
@@ -16,7 +15,7 @@ export default function StudentSchedule({ studentClass: propStudentClass }) {
   const userData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
 
   // Resolve studentId from token first, otherwise from userData.entity_id or userData.student_id
-  let resolvedStudentId = tokenStudentId || null;
+  let resolvedStudentId = tokenStudentId || null || propStudentId;
   if (!resolvedStudentId && userData) {
     resolvedStudentId = userData?.student_id || userData?.studentId || userData?.entity_id || userData?.entityId || null;
   }

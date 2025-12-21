@@ -2,7 +2,7 @@ import api from "./lib/api.js";
 
 export const getAllMaterials = async () => {
   const request = await api.get("/materials");
-  return request.data;
+  return request.data.materials;
 };
 
 export const getMaterialById = async (id) => {

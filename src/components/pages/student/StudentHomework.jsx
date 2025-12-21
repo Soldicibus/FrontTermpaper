@@ -4,7 +4,7 @@ import { useHomeworkByStudentOrClass } from "../../../hooks/homework/queries/use
 import { useUserData } from "../../../hooks/users/queries/useUserData";
 import { getCurrentStudentId, getCurrentUserClass, getCurrentUser } from "../../../utils/auth";
 
-export default function StudentHomework({ studentId: propStudentId, studentClass: propStudentClass }) {
+export default function StudentHomework({ studentId: propStudentId, studentClass: propStudentClass, onSelect }) {
   const [openId, setOpenId] = useState(null);
   const { data: homework, isLoading: homeworkLoading } = useHomework();
 
@@ -70,6 +70,7 @@ export default function StudentHomework({ studentId: propStudentId, studentClass
                const next = openId === cardId ? null : cardId;
                console.log('[ui] toggling homework card', { clicked: cardId, nextOpen: next });
                setOpenId(next);
+               if (onSelect) onSelect(next ? h : null);
              }}
            >
             <header>

@@ -28,7 +28,7 @@ export const getTeachersWithClassesByName = async (className) => {
   const safeSegment = encodeURIComponent(decoded);
   const request = await api.get(`/teacher/with-classes-by-name/${safeSegment}`);
 
-  return request.data;
+  return request.data.teachers;
 };
 
 export const getTeacherById = async (id) => {
