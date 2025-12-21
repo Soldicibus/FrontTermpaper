@@ -5,11 +5,24 @@ export const getAllClasses = async () => {
   return request.data;
 };
 
-export const getClassById = async (id) => {
-  const request = await api.get(`/classes/${id}`);
+export const getClassByName = async (name) => {
+  // Accept both encoded and decoded input, then encode for URL path safety.
+  let decoded = name;
+  try {
+    decoded = decodeURIComponent(name);
+  } catch {
+    decoded = name;
+  }
+  const safeSegment = encodeURIComponent(decoded);
+  const request = await api.get(`/classes/${safeSegment}`);
   const data = request.data;
   return data.class;
 };
+
+export const getClassRatingReport = async () => {
+  const request = await api.get(`/classes/rate/rating`);
+  return request.data.report;
+}
 
 export const createClass = async (name, journalId, mainTeacherId) => {
   const request = await api.post("/classes", {
@@ -20,15 +33,14 @@ export const createClass = async (name, journalId, mainTeacherId) => {
   return request;
 };
 
-export const updateClass = async (id, name, mainTeacherId) => {
-  const request = await api.patch(`/classes/${id}`, {
-    name,
+export const updateClass = async (name, mainTeacherId) => {
+  const request = await api.patch(`/classes/${name}`, {
     mainTeacherId,
   });
   return request;
 };
 
-export const deleteClass = async (id) => {
-  const request = await api.delete(`/classes/${id}`);
+export const deleteClass = async (name) => {
+  const request = await api.delete(`/classes/${name}`);
   return request;
 };

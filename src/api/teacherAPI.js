@@ -15,6 +15,19 @@ export const getTeacherSalaryReport = async () => {
 export const getTeachersWithClasses = async (id) => {
   const request = await api.get(`/teacher/with-classes/${id}`);
 
+  return request.data.teachers;
+};
+
+export const getTeachersWithClassesByName = async (className) => {
+  let decoded = className;
+  try {
+    decoded = decodeURIComponent(className);
+  } catch {
+    decoded = className;
+  }
+  const safeSegment = encodeURIComponent(decoded);
+  const request = await api.get(`/teacher/with-classes-by-name/${safeSegment}`);
+
   return request.data;
 };
 

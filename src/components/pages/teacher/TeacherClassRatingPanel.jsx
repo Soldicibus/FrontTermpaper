@@ -1,16 +1,14 @@
 import React, { useMemo } from "react";
-import { vw_class_ranking } from "../../../data/mockViews";
+import { useClassRating } from "../../../hooks/classes/queries/useClassRating";
 
-/**
- * Minimal Class Rating panel.
- * - Backend endpoint isn't present yet in this repo, so we show mock view data.
- * - When API is added (e.g. GET /classes/ranking), swap the data source to a react-query hook.
- */
 export default function TeacherClassRatingPanel() {
+  const { data, isLoading } = useClassRating();
+
   const rows = useMemo(() => {
-    // fallback to mock view data
-    return Array.isArray(vw_class_ranking) ? vw_class_ranking : [];
-  }, []);
+    if (isLoading) return [];
+    if (Array.isArray(data)) return data;
+    return data?.rows ?? data?.report ?? [];
+  }, [data, isLoading]);
 
   return (
     <section className="card">
@@ -44,10 +42,6 @@ export default function TeacherClassRatingPanel() {
           </table>
         </div>
       )}
-
-      <p style={{ marginTop: 10, opacity: 0.75 }}>
-        Примітка: зараз використовується демо-дані з `mockViews.js`.
-      </p>
     </section>
   );
 }

@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import * as classesAPI from "../../../api/classesAPI.js";
 
-export function useClass(id) {
+export function useClass(name) {
   return useQuery({
-    queryKey: ["class", id],
-    queryFn: () => classesAPI.getClassById(id),
-    enabled: !!id,
+    queryKey: ["class", name],
+    queryFn: () => classesAPI.getClassByName(name),
+    enabled: !!name,
   });
 }

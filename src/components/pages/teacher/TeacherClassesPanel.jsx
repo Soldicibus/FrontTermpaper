@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { decodeToken } from "../../../utils/jwt";
 import { useUserData } from "../../../hooks/users";
 import { useTeachersWithClasses } from "../../../hooks/teachers/queries/useTeachersWithClasses";
+import { useClasses } from "../../../hooks/classes/queries/useClasses";
 
 /**
  * A dashboard-friendly (no <main>) panel version of TeacherClasses.
@@ -36,6 +37,31 @@ export default function TeacherClassesPanel({
 
   const entityId = user?.entity_id ?? user?.entityId ?? userRes?.entity_id ?? null;
 
+  // All classes (dashboard "Усі класи")
+  const {
+    data: allClassesRes,
+    isLoading: isAllClassesLoading,
+    error: allClassesErr,
+  } = useClasses();
+
+  const allClasses = useMemo(() => {
+    const data = allClassesRes;
+    const list = Array.isArray(data?.classes)
+      ? data.classes
+      : Array.isArray(data)
+        ? data
+        : [];
+
+    const names = list
+      .map((c) => c?.class_name ?? c?.name ?? c)
+      .filter(Boolean);
+
+    return Array.from(new Set(names)).sort((a, b) =>
+      String(a).localeCompare(String(b), "uk"),
+    );
+  }, [allClassesRes]);
+
+  // Teacher's classes (dashboard "Мій клас")
   const {
     data: teachersWithClassesRes,
     isLoading: isTwcLoading,
@@ -66,51 +92,76 @@ export default function TeacherClassesPanel({
   }, [teachersWithClasses, myTeacherId]);
 
   useEffect(() => {
-    if (isUserLoading || isTwcLoading || userErr || twcErr) return;
+    if (isUserLoading || userErr) return;
+    if (!onlyMyClasses) {
+      if (isAllClassesLoading || allClassesErr) return;
+    } else {
+      if (isTwcLoading || twcErr) return;
+    }
     if (typeof onLoaded !== "function") return;
     onLoaded({
       teacherId: myTeacherId,
       entityId,
       myClasses,
-      allRows: teachersWithClasses,
+      allRows: onlyMyClasses ? teachersWithClasses : allClasses,
     });
   }, [
     isUserLoading,
-    isTwcLoading,
     userErr,
+    userErr,
+    onlyMyClasses,
+    isAllClassesLoading,
+    allClassesErr,
+    isTwcLoading,
     twcErr,
     onLoaded,
     myTeacherId,
     entityId,
     myClasses,
     teachersWithClasses,
+    allClasses,
   ]);
 
-  const allClasses = useMemo(() => {
-    const set = new Set();
-    for (const row of teachersWithClasses) {
-      const className = row.class_name || row.name_class || row.class;
-      if (className) set.add(className);
-    }
-    return Array.from(set).sort((a, b) => String(a).localeCompare(String(b), "uk"));
-  }, [teachersWithClasses]);
-
   const visibleClasses = onlyMyClasses ? myClasses : allClasses;
+
+  const visibleClassesSorted = useMemo(() => {
+    const parseLeadingNumber = (val) => {
+      const m = String(val ?? "").trim().match(/^(\d+)/);
+      return m ? Number(m[1]) : Number.POSITIVE_INFINITY;
+    };
+
+    return [...visibleClasses].sort((a, b) => {
+      const an = parseLeadingNumber(a);
+      const bn = parseLeadingNumber(b);
+      if (an !== bn) return an - bn;
+      return String(a).localeCompare(String(b), "uk", {
+        numeric: true,
+        sensitivity: "base",
+      });
+    });
+  }, [visibleClasses]);
+
+  const isLoading = onlyMyClasses
+    ? isUserLoading || isTwcLoading
+    : isUserLoading || isAllClassesLoading;
+
+  const err = onlyMyClasses
+    ? userErr || twcErr
+    : userErr || allClassesErr;
 
   return (
     <section className="card">
       <h2>{onlyMyClasses ? "Мій клас / Мої класи" : "Усі класи"}</h2>
 
-      {(isUserLoading || isTwcLoading) && <div>Завантаження...</div>}
-      {(userErr || twcErr) && (
+      {isLoading && <div>Завантаження...</div>}
+      {err && (
         <div>
           Помилка завантаження
-          {userErr?.message ? `: ${userErr.message}` : ""}
-          {twcErr?.message ? `: ${twcErr.message}` : ""}
+          {err?.message ? `: ${err.message}` : ""}
         </div>
       )}
 
-      {!isUserLoading && !isTwcLoading && !userErr && !twcErr && (
+      {!isLoading && !err && (
         <>
           {onlyMyClasses && !myTeacherId ? (
             <p style={{ opacity: 0.85 }}>
@@ -120,33 +171,43 @@ export default function TeacherClassesPanel({
           ) : visibleClasses.length === 0 ? (
             <p>{onlyMyClasses ? "Для вас не знайдено класів." : "Класи не знайдено."}</p>
           ) : (
-            <ul>
-              {visibleClasses.map((c) => (
-                <li key={c}>
-                  <button
-                    onClick={() =>
-                      typeof onSelectClassName === "function"
-                        ? onSelectClassName(c)
-                        : navigate("/teacher/classes")
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+                gap: 10,
+                marginTop: 10,
+              }}
+            >
+              {visibleClassesSorted.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => {
+                    if (typeof onSelectClassName === "function") {
+                      onSelectClassName(c);
+                      return;
                     }
-                    className={
-                      selectedClassName && String(selectedClassName) === String(c)
-                        ? "active"
-                        : ""
-                    }
-                  >
-                    {c}
-                  </button>
-                </li>
+                    // Always allow opening the class details view.
+                    // Encode to keep URLs safe for values like "2-А".
+                    const encoded = encodeURIComponent(String(c));
+                    navigate(`/teacher/classes/${encoded}`);
+                  }}
+                  className={
+                    selectedClassName && String(selectedClassName) === String(c)
+                      ? "active"
+                      : ""
+                  }
+                  style={{
+                    width: "100%",
+                    textAlign: "center",
+                    padding: "10px 12px",
+                  }}
+                >
+                  {c}
+                </button>
               ))}
-            </ul>
+            </div>
           )}
-
-          <div style={{ marginTop: 12 }}>
-            <button onClick={() => navigate("/teacher/classes")}>
-              Відкрити сторінку «Мої класи»
-            </button>
-          </div>
         </>
       )}
     </section>
