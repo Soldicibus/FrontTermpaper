@@ -2,7 +2,7 @@ import api from "./lib/api.js";
 
 export const getAllDays = async () => {
   const request = await api.get("/days");
-  return request.data;
+  return request.data.days;
 };
 
 export const getDayById = async (id) => {

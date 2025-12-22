@@ -2,7 +2,7 @@ import api from "./lib/api.js";
 
 export const getAllLessons = async () => {
   const request = await api.get("/lessons");
-  return request.data;
+  return request.data.lessons;
 };
 
 export const getLessonById = async (id) => {

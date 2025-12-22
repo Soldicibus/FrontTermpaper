@@ -2,7 +2,7 @@ import api from "./lib/api.js";
 
 export const getAllRoles = async () => {
   const request = await api.get("/roles");
-  return request.data;
+  return request.data.roles;
 };
 
 export const getRoleById = async (id) => {

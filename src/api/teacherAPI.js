@@ -3,7 +3,7 @@ import api from "./lib/api.js";
 export const getTeachers = async () => {
   const request = await api.get("/teacher");
 
-  return request.data;
+  return request.data.teachers;
 };
 
 export const getTeacherSalaryReport = async () => {

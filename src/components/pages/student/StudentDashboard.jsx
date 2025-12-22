@@ -17,11 +17,11 @@ export default function StudentDashboard() {
   // Derive user id from token and fetch user profile to obtain linked student id
   const currentUser = getCurrentUser();
   const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
-  const { data: userRes, isLoading: userLoading } = useUserData(userId);
-  const userData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
   const userRole = currentUser?.role || currentUser?.role_name || userRes?.role || null;
   // Check if user has student role
   const hasStudentRole = typeof userRole === 'string' && userRole.toLowerCase() === 'student';
+  const { data: userRes, isLoading: userLoading } = useUserData(userId);
+  const userData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
 
   // support new `entity_id` returned by /users/:id/data (mapped to student/teacher/parent)
   const linkedStudentId = userData?.entity_id || userData?.entityId || null;

@@ -2,11 +2,10 @@ import api from "./lib/api.js";
 
 export const getAllClasses = async () => {
   const request = await api.get("/classes");
-  return request.data;
+  return request.data.classes;
 };
 
 export const getClassByName = async (name) => {
-  // Accept both encoded and decoded input, then encode for URL path safety.
   let decoded = name;
   try {
     decoded = decodeURIComponent(name);

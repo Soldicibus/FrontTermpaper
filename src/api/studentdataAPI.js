@@ -2,7 +2,7 @@ import api from "./lib/api.js";
 
 export const getAllStudentData = async () => {
   const request = await api.get("/studentdata");
-  return request.data;
+  return request.data.studentData;
 };
 
 export const getStudentDataById = async (id) => {

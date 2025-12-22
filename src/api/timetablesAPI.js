@@ -2,7 +2,7 @@ import api from "./lib/api.js";
 
 export const getAllTimetables = async () => {
   const request = await api.get("/timetables");
-  return request.data;
+  return request.data.timetables;
 };
 
 export const getWeeklyTimetable = async (id) => {

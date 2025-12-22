@@ -6,14 +6,19 @@ import { useNavigate } from "react-router-dom";
 import api from "../../api/lib/api";
 
 export default function Cabinet() {
-    const logout = useLogout();
-    const navigate = useNavigate();
-    const currentUser = getCurrentUser();
-    const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
+  const logout = useLogout();
+  const navigate = useNavigate();
+  const currentUser = getCurrentUser();
+  const userId = currentUser?.id || null;
+  let isLoading = false;
+  let error = null;
+  let user = null;
+  const role = currentUser?.role || null;
 
-  const { data: userRes, isLoading, error } = useUserData(userId);
-  const user = userRes?.userData ?? userRes?.user ?? userRes ?? null;
-
+  if (role !== 'user' && role !== 'admin' && role !== 'sadmin') {
+    const { data: userRes, isLoading, error } = useUserData(userId);
+    const user = userRes?.userData ?? userRes?.user ?? userRes ?? null;
+  }
   const isApiDev = import.meta.env?.VITE_API_DEV === 'true';
 
   const logDbRole = async () => {
@@ -52,7 +57,7 @@ export default function Cabinet() {
                         <p>Роль: {user?.role || payload?.role || '—'}</p>
                       </>
                     ) : (
-                      <p>Користувача не знайдено</p>
+                      <p>Користувача не знайдено або ви є <strong>{role}</strong></p>
                     )}
                     <button onClick={onLogout}>Вийти</button>
 

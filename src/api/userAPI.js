@@ -2,7 +2,7 @@ import api from "./lib/api.js";
 
 export const getAllUsers = async () => {
   const request = await api.get("/users");
-  return request.data;
+  return request.data.users;
 };
 
 export const getUserById = async (id) => {

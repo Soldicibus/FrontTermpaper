@@ -9,13 +9,12 @@ import NotFound from "./components/pages/NotFound";
 import StudentDashboard from "./components/pages/student/StudentDashboard";
 import ParentOverview from "./components/pages/parent/ParentOverview";
 import TeacherDashboard from "./components/pages/teacher/TeacherDashboard";
-import TeacherClassView from "./components/pages/teacher/TeacherClassView";
-import AdminPanel from "./components/pages/admin/AdminPanel";
 import RequireAuth from "./components/RequireAuth";
 import RequireRole from "./components/RequireRole";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { me } from './api/auth.js';
+import AdminDashboard from "./components/pages/admin/AdminDashboard.jsx";
 
 // initialize a single client for the app
 const queryClient = new QueryClient();
@@ -42,12 +41,12 @@ function App() {
       <Routes>
         <Route path="/auth" element={<Auth />} />
         <Route path="/" element={<Mainpage />} />
-        <Route path="/student/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Student","Admin","SAdmin"]}><StudentDashboard /></RequireRole></RequireAuth>} />
-        <Route path="/admin" element={<RequireAuth><RequireRole allowedRoles={["Admin","SAdmin"]}><AdminPanel /></RequireRole></RequireAuth>} />
-        <Route path="/parent/overview" element={<RequireAuth><RequireRole allowedRoles={["Parent","Admin","SAdmin"]}><ParentOverview /></RequireRole></RequireAuth>} />
-        <Route path="/teacher/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Teacher","Admin","SAdmin"]}><TeacherDashboard /></RequireRole></RequireAuth>} />
-        <Route path="/teacher/classes" element={<RequireAuth><RequireRole allowedRoles={["Teacher","Admin","SAdmin"]}><TeacherDashboard /></RequireRole></RequireAuth>} />
-        <Route path="/teacher/classes/:class_name" element={<RequireAuth><RequireRole allowedRoles={["Teacher","Admin","SAdmin"]}><TeacherClassView /></RequireRole></RequireAuth>} />
+        <Route path="/student/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Student"]}><StudentDashboard /></RequireRole></RequireAuth>} />
+
+        <Route path="/admin/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Admin","SAdmin"]}><AdminDashboard /></RequireRole></RequireAuth>} />
+
+        <Route path="/parent/overview" element={<RequireAuth><RequireRole allowedRoles={["Parent"]}><ParentOverview /></RequireRole></RequireAuth>} />
+        <Route path="/teacher/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Teacher"]}><TeacherDashboard /></RequireRole></RequireAuth>} />
         <Route path="/cabinet" element={<RequireAuth><Cabinet /></RequireAuth>} />
         <Route path="*" element={<NotFound />} />
       </Routes>

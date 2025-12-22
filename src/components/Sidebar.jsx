@@ -89,25 +89,25 @@ export default function Sidebar() {
               Авторизація
             </Link>
           )}
-          {(hasRole('teacher') || hasRole('admin') || hasRole('sadmin')) && (
+          {(hasRole('teacher')) && (
             <>
               <Link to="/teacher/dashboard" onClick={closeSidebar}>
                 Кабінет учителя
               </Link>
             </>
           )}
-          {(hasRole('student') || hasRole('admin') || hasRole('sadmin')) && (
+          {(hasRole('student')) && (
             <Link to="/student/dashboard" onClick={closeSidebar}>
               Для учнів
             </Link>
           )}
-          {(hasRole('parent') || hasRole('admin') || hasRole('sadmin')) && (
+          {(hasRole('parent')) && (
             <Link to="/parent/overview" onClick={closeSidebar}>
               Для батьків
             </Link>
           )}
           {(hasRole('admin') || hasRole('sadmin')) && (
-            <Link to="/admin" onClick={closeSidebar}>
+            <Link to="/admin/dashboard" onClick={closeSidebar}>
               Панель адміністратора
             </Link>
           )}

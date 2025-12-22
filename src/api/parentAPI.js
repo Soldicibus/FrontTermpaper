@@ -3,7 +3,7 @@ import api from "./lib/api.js";
 export const getParents = async () => {
   const request = await api.get("/parents");
 
-  return request.data;
+  return request.data.parents;
 };
 
 export const getParentById = async (id) => {
