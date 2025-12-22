@@ -46,15 +46,6 @@ function formatTime(value) {
     return "";
   }
 }
-
-/**
- * TeacherStudentJournal
- *
- * Contract (template):
- * - Input: studentId (number|string), studentName (string optional)
- * - Output: renders last 7 days journal entries
- * - Actions: click grade -> prompt edit/delete (stub); create new -> stub
- */
 export default function TeacherStudentJournal({ studentId, studentName, onBack }) {
   const {
     data: marks7d,
@@ -79,13 +70,6 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
   const teacherId = userData?.teacher_id || userData?.teacherId || userData?.entity_id || null;
 
   const [modal, setModal] = useState(null);
-  // modal shapes:
-  // { type: 'actions', entry }
-  // { type: 'confirmDelete', entry }
-  // { type: 'edit', entry }
-  // { type: 'create' }
-
-  // Form state
   const [form, setForm] = useState({
     mark: "",
     status: "",

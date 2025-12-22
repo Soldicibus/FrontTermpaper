@@ -1,6 +1,7 @@
 import React from "react";
 import { useStudentDataMarks7d } from "../../../hooks/studentdata/queries/useStudentDataMarks7d";
-import { getCurrentStudentId } from '../../../utils/auth';
+import { getCurrentUser } from "../../../utils/auth";
+import { useUserData } from "../../../hooks/users";
 
 function formatDate(value) {
   if (!value) return '—';
@@ -14,8 +15,13 @@ function formatDate(value) {
 }
 
 export default function StudentJournal({ studentId: propStudentId }) {
-  const tokenStudentId = getCurrentStudentId();
-  const studentId = propStudentId || tokenStudentId;
+  if (import.meta.env.DEV) {
+    console.log('StudentJournal: propStudentId', propStudentId);
+  }
+  const currentUser = getCurrentUser();
+  const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
+  const {data: userData} = useUserData(userId);
+  const studentId = propStudentId || userData?.entity_id || userData?.entityId || null;
   const { data: marks7d, isLoading: marksLoading, error } = useStudentDataMarks7d(studentId, { enabled: !!studentId });
 
   const entries = [];
@@ -31,7 +37,6 @@ export default function StudentJournal({ studentId: propStudentId }) {
       {error && <div className="error">Помилка завантаження даних</div>}
       {!marksLoading && entries.length === 0 && <div className="empty-state">Немає записів журналу за останні 7 днів</div>}
 
-      {/* Group entries by date */}
       <div className="journal-by-date">
         {(() => {
           const groups = entries.reduce((acc, item) => {
@@ -70,8 +75,6 @@ export default function StudentJournal({ studentId: propStudentId }) {
                 return (
                   <div key={k} className="journal-column">
                     <div style={{ fontWeight: 700, marginBottom: 8, textAlign: 'center' }}>{k}</div>
-
-                    {/* main subject card (first subject of the day) */}
                     <div className="journal-subject-card">
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>

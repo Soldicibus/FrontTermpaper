@@ -9,19 +9,17 @@ import StudentRanking from "./StudentRanking";
 import { useStudents } from "../../../hooks/students/queries/useStudents";
 import { useStudent } from "../../../hooks/students/queries/useStudent";
 import { useUserData } from "../../../hooks/users/queries/useUserData";
-import { decodeToken } from "../../../utils/jwt";
+import { getCurrentUser } from "../../../utils/auth";
 
 export default function StudentDashboard() {
   const [tab, setTab] = useState("journal");
   const { data: students, isLoading: studentsLoading } = useStudents();
   // Derive user id from token and fetch user profile to obtain linked student id
-  const token = localStorage.getItem('accessToken');
-  const payload = token ? decodeToken(token) : null;
-  const userId = payload?.userId || payload?.id || payload?.sub || null;
+  const currentUser = getCurrentUser();
+  const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
   const { data: userRes, isLoading: userLoading } = useUserData(userId);
   const userData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
-  // The token contains the role
-  const userRole = payload?.role || payload?.role_name || null;
+  const userRole = currentUser?.role || currentUser?.role_name || userRes?.role || null;
   // Check if user has student role
   const hasStudentRole = typeof userRole === 'string' && userRole.toLowerCase() === 'student';
 
@@ -38,7 +36,7 @@ export default function StudentDashboard() {
     userData?.class_name ||
     '—';
 
-  // normalize display fields from userData - DB function may return various column names
+  // normalize display fields from userData
   function pickName(u) {
     if (!u) return { name: null, surname: null, email: null, phone: null };
     // Prefer student-specific fields when available

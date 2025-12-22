@@ -1,6 +1,5 @@
 import React from "react";
 import { useMaterials } from "../../../hooks/materials/queries/useMaterials";
-import { getCurrentUserClass } from "../../../utils/auth";
 
 export default function StudentMaterials({ studentClass: propStudentClass }) {
   const { data: materials, isLoading } = useMaterials();

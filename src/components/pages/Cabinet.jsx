@@ -1,6 +1,6 @@
 import React from "react";
 import "./css/Mainpage.css";
-import { decodeToken } from '../../utils/jwt';
+import { getCurrentUser } from '../../utils/auth';
 import { useLogout, useUserData } from "../../hooks/users";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/lib/api";
@@ -8,9 +8,8 @@ import api from "../../api/lib/api";
 export default function Cabinet() {
     const logout = useLogout();
     const navigate = useNavigate();
-    const token = localStorage.getItem('accessToken');
-    const payload = token ? decodeToken(token) : null;
-    const userId = payload?.userId || payload?.id || payload?.user_id || null;
+    const currentUser = getCurrentUser();
+    const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
 
   const { data: userRes, isLoading, error } = useUserData(userId);
   const user = userRes?.userData ?? userRes?.user ?? userRes ?? null;

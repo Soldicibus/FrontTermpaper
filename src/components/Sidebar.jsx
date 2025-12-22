@@ -1,7 +1,6 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { getCurrentUser, isAuthenticated } from '../utils/auth';
-import { decodeToken } from "../utils/jwt";
+import { isAuthenticated, getCurrentUser } from '../utils/auth';
 import "./pages/css/Sidebar.css";
 
 export default function Sidebar() {
@@ -26,10 +25,9 @@ export default function Sidebar() {
 
   // Determine current role from JWT (fast, avoids an extra request).
   // Note: this reflects the "active" role at the time the token was issued.
-  const token = localStorage.getItem('accessToken');
-  const payload = token ? decodeToken(token) : null;
-  const tokenRole = payload?.role ?? payload?.role_name ?? null;
-  const tokenRoles = Array.isArray(payload?.roles) ? payload.roles : [];
+  const user = getCurrentUser();
+  const tokenRole = user?.role || user?.role_name || null;
+  const tokenRoles = Array.isArray(user?.roles) ? user.roles : [];
 
   const roles = [tokenRole, ...tokenRoles]
     .filter(Boolean)

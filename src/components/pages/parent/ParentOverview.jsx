@@ -10,7 +10,7 @@ import StudentJournal from "../student/StudentJournal";
 export default function ParentOverview() {
   const currentUser = getCurrentUser();
   const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
-  
+
   const { data: userRes, isLoading: userLoading } = useUserData(userId);
   
   // Unwrap user data safely - handling potential double nesting
@@ -73,10 +73,9 @@ export default function ParentOverview() {
                       key={sId}
                       className={isSelected ? "active" : ""}
                       onClick={() => {
-  console.log("CLICKED student:", sId);
-  setSelectedStudentId(sId);
-}}
-
+                        if (import.meta.env.DEV) console.log("CLICKED student:", sId);
+                        setSelectedStudentId(sId);
+                      }}
                     >
                       {s.student_name} {s.student_surname} {s.student_class ? `(${s.student_class})` : ""}
                     </button>
@@ -107,8 +106,6 @@ export default function ParentOverview() {
                     Журнал
                   </button>
                 </div>
-
-                {/* Content */}
                 <div style={{ marginTop: 20 }}>
                   {activeTab === "schedule" && (
                     <StudentSchedule studentId={selectedStudentId} />

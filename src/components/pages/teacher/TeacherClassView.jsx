@@ -13,8 +13,8 @@ import { useLessonName } from "../../../hooks/lessons/queries/useLessonName";
 import { useSubjects } from "../../../hooks/subjects/queries/useSubjects";
 import { useMaterials } from "../../../hooks/materials/queries/useMaterials";
 import { useUserData } from "../../../hooks/users/queries/useUserData";
-import { getCurrentUser } from "../../../utils/auth";
 import { useHomeworkById } from "../../../hooks/homework/queries/useHomeworkById";
+import { getCurrentUser } from "../../../utils/auth";
 
 export default function TeacherClassView({ className: classNameProp, onBack }) {
   const navigate = useNavigate();

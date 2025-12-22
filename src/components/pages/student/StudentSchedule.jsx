@@ -2,28 +2,24 @@ import React, { useState } from "react";
 import { useTimetableByStudent } from "../../../hooks/timetables/queries/useTimetableByStudent";
 import { useWeeklyTimetable } from "../../../hooks/timetables/queries/useWeeklyTimetable";
 import { useUserData } from "../../../hooks/users/queries/useUserData";
-import { getCurrentStudentId, getCurrentUser } from "../../../utils/auth";
+import { getCurrentUser } from "../../../utils/auth";
 
-export default function StudentSchedule({ studentId: propStudentId, studentClass: propStudentClass }) {
+export default function StudentSchedule({ studentId: propStudentId = null }) {
   if (import.meta.env.DEV) {
     console.log('StudentSchedule: propStudentId', propStudentId);
   }
   const [selectedSubject, setSelectedSubject] = useState(null);
   const days = ['Понеділок','Вівторок','Середа','Четвер','Пʼятниця'];
-  // Prefer timetable by student id. If token doesn't include studentId, fetch user data and use its entity_id/student_id.
-  const tokenStudentId = getCurrentStudentId();
   const currentUser = getCurrentUser();
   const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
   const { data: userRes, isLoading: userDataLoading } = useUserData(userId, { enabled: !!userId });
   const userData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
-
-  // Resolve studentId from token first, otherwise from userData.entity_id or userData.student_id
-  let resolvedStudentId = propStudentId;
-  if (!resolvedStudentId) {
-    resolvedStudentId = tokenStudentId;
-  }
-  if (!resolvedStudentId && userData) {
+  let resolvedStudentId = null;
+  if (propStudentId == null) {
     resolvedStudentId = userData?.student_id || userData?.studentId || userData?.entity_id || userData?.entityId || null;
+  }
+  else {
+    resolvedStudentId = propStudentId;
   }
 
   const { data: timetables, isLoading: timetablesLoading } = useTimetableByStudent(resolvedStudentId, { enabled: !!resolvedStudentId });
@@ -53,7 +49,7 @@ export default function StudentSchedule({ studentId: propStudentId, studentClass
   }
 
   if (import.meta?.env?.DEV) {
-    console.log('student schedule: resolvedStudentId, timetables response', { userId, tokenStudentId, resolvedStudentId, userData, timetables, timetableId });
+    console.log('student schedule: resolvedStudentId, timetables response', { userId, resolvedStudentId, userData, timetables, timetableId });
   }
 
   const { data: weekRows, isLoading: weekLoading } = useWeeklyTimetable(timetableId, { enabled: !!timetableId });
@@ -65,7 +61,6 @@ export default function StudentSchedule({ studentId: propStudentId, studentClass
     return s.replace(/[\u2018\u2019\u02BC\u02BD]/g, "'").trim();
   }
 
-  // Build sample mapping from rows
   let sample = {};
   let timesFromData = [];
   if (Array.isArray(weekRows) && weekRows.length > 0) {
@@ -85,7 +80,6 @@ export default function StudentSchedule({ studentId: propStudentId, studentClass
       });
       if (t && !timesFromData.includes(t)) timesFromData.push(t);
     });
-    // sort times
     timesFromData.sort();
   }
 

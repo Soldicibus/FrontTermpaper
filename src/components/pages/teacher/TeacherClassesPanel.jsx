@@ -1,14 +1,10 @@
 import React, { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { decodeToken } from "../../../utils/jwt";
+import { getCurrentUser } from "../../../utils/auth";
 import { useUserData } from "../../../hooks/users";
 import { useTeachersWithClasses } from "../../../hooks/teachers/queries/useTeachersWithClasses";
 import { useClasses } from "../../../hooks/classes/queries/useClasses";
 
-/**
- * A dashboard-friendly (no <main>) panel version of TeacherClasses.
- * Shows "my classes" for the current teacher (based on user profile entity_id/teacher_id).
- */
 /**
  * @param {object} props
  * @param {boolean} [props.onlyMyClasses] If true, only show classes for current teacher.
@@ -24,9 +20,8 @@ export default function TeacherClassesPanel({
 }) {
   const navigate = useNavigate();
 
-  const token = localStorage.getItem("accessToken");
-  const payload = token ? decodeToken(token) : null;
-  const userId = payload?.userId || payload?.id || payload?.user_id || null;
+  const currentUser = getCurrentUser();
+  const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
 
   const {
     data: userRes,
@@ -187,7 +182,6 @@ export default function TeacherClassesPanel({
                       onSelectClassName(c);
                       return;
                     }
-                    // Always allow opening the class details view.
                     // Encode to keep URLs safe for values like "2-А".
                     const encoded = encodeURIComponent(String(c));
                     navigate(`/teacher/classes/${encoded}`);

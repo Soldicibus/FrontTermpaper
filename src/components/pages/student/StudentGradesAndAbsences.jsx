@@ -1,22 +1,26 @@
 import React from 'react';
 import { useStudentAttendanceReport } from '../../../hooks/students/queries/useStudentAttendance';
 import { useUserData } from '../../../hooks/users/queries/useUserData';
-import { getCurrentStudentId, getCurrentUser } from '../../../utils/auth';
+import { useStudent } from '../../../hooks/students/queries/useStudent';
+import { getCurrentUser } from '../../../utils/auth';
 
 export default function StudentGradesAndAbsences({ enabled = true, studentId: propStudentId }) {
-  const tokenStudentId = getCurrentStudentId();
   const currentUser = getCurrentUser();
   const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
   const { data: userRes, isLoading: userDataLoading } = useUserData(userId, { enabled: !!userId });
   const userData = userRes?.userData ?? userRes?.user ?? userRes ?? null;
 
-  // Resolve student id from token first, then userData.entity_id or userData.student_id
-  let resolvedStudentId = propStudentId || tokenStudentId;
+
+  let resolvedStudentId = propStudentId || userData?.entity_id || userData?.entityId || null;
+  const {data: student} = useStudent(resolvedStudentId, { enabled: !!resolvedStudentId });
   if (!resolvedStudentId && userData) {
     resolvedStudentId = userData?.student_id || userData?.studentId || userData?.entity_id || userData?.entityId || null;
   }
+  else if (!resolvedStudentId && !userData && student) {
+    resolvedStudentId = student?.id || student?.entity_id || student?.entityId || null;
+  }
   if (import.meta?.env?.DEV) {
-    console.log('student grades: resolvedStudentId', { tokenStudentId, userId, resolvedStudentId, userData });
+    console.log('student grades: resolvedStudentId', { propStudentId, userId, resolvedStudentId, userData });
   }
 
   const { data: attendanceReport = [], isLoading: attendanceLoading } = useStudentAttendanceReport(
@@ -27,7 +31,6 @@ export default function StudentGradesAndAbsences({ enabled = true, studentId: pr
 
   if (isLoading) return <div>Завантаження відвідуваності...</div>;
   if (!resolvedStudentId) return <div>Не знайдено ID учня</div>;
-  // Pull out attendance totals if available (attendanceReport is expected to be [{ present, absent, present_percent }])
   const attendanceTotals = Array.isArray(attendanceReport) && attendanceReport.length > 0 ? attendanceReport[0] : null;
   const presentCount = attendanceTotals
     ? (attendanceTotals.present ?? attendanceTotals.present_count ?? attendanceTotals.presentCount ?? 0)

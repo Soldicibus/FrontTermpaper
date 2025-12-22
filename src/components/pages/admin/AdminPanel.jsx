@@ -1,6 +1,7 @@
 import React from "react";
 import { useUsers } from "../../../hooks/users/queries/useUsers";
 import { useClasses } from "../../../hooks/classes/queries/useClasses";
+import { getCurrentUser } from "../../../utils/auth";
 
 export default function AdminPanel() {
   const { data: users, isLoading } = useUsers();

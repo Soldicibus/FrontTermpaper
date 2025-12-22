@@ -3,7 +3,7 @@ import "../css/Dashboard.css";
 import TeacherClassesPanel from "./TeacherClassesPanel";
 import TeacherClassRatingPanel from "./TeacherClassRatingPanel";
 import TeacherClassView from "./TeacherClassView";
-import { decodeToken } from "../../../utils/jwt";
+import { getCurrentUser } from "../../../utils/auth";
 import { useUserData } from "../../../hooks/users";
 import { useTeachersWithClasses } from "../../../hooks/teachers/queries/useTeachersWithClasses";
 
@@ -17,9 +17,8 @@ export default function TeacherDashboard() {
 
   // We derive the teacherId/entityId here as well so "Мій клас" can auto-open
   // even before TeacherClassesPanel finishes loading.
-  const token = localStorage.getItem("accessToken");
-  const payload = token ? decodeToken(token) : null;
-  const userId = payload?.userId || payload?.id || payload?.user_id || null;
+  const currentUser = getCurrentUser();
+  const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
   const { data: userRes } = useUserData(userId);
   const user = userRes?.userData ?? userRes?.user ?? userRes ?? null;
   const entityId = user?.entity_id ?? user?.entityId ?? userRes?.entity_id ?? null;
@@ -55,13 +54,7 @@ export default function TeacherDashboard() {
         <button
           onClick={() => {
             setPrevClassesScope("my");
-
-            // Prefer backend-derived class name (teacher/with-classes/:id)
-            // so it matches the teacher's actual class list.
             const first = myFirstClassName ?? myClasses?.[0] ?? null;
-
-            // If known, auto-open TeacherClassView.
-            // If not known yet, show the panel — onLoaded will still auto-open.
             if (first) {
               setSelectedClassName((prev) => prev ?? first);
               setScope("class");

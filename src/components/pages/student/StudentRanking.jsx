@@ -15,7 +15,7 @@ function displaySurname(row) {
 function displayAvg(row) {
   if (!row) return '—';
   // Prefer avg_mark when available
-  const candidates = [row.avg_mark, row.avg, row.average, row.mean, row.average_mark, row.average_score, row.score];
+  const candidates = [row.avg_mark, row.average_score, row.score];
   for (const v of candidates) {
     if (v != null && v !== '') {
       const n = Number(String(v).replace(',', '.'));
@@ -30,12 +30,6 @@ export default function StudentRanking() {
 
   if (isLoading) return <div>Завантаження рейтингу...</div>;
   if (error) return <div>Помилка: {error.message || 'Не вдалося завантажити рейтинг'}</div>;
-
-  // Normalize the hook result into an array of rows.
-  // Handles shapes:
-  //  - Array: [ {...}, {...} ]
-  //  - { students: [ ... ] }
-  //  - axios response: { data: { students: [...] } }
 
   // Debug: log the ranking shape in dev
   if (import.meta?.env?.DEV) {
@@ -98,7 +92,6 @@ export default function StudentRanking() {
           ))}
         </tbody>
       </table>
-      {/* If rows appear to have no name/avg fields, show a small debug preview of the first row */}
       {sorted.length > 0 && (displayName(sorted[0]) === '—' && displayAvg(sorted[0]) === '—') && (
         <pre style={{ fontSize: 12, marginTop: 8 }}>{JSON.stringify(sorted[0], null, 2)}</pre>
       )}
