@@ -21,7 +21,7 @@ export const getClassByName = async (name) => {
 export const getClassRatingReport = async () => {
   const request = await api.get(`/classes/rate/rating`);
   return request.data.report;
-}
+};
 
 export const createClass = async ({ name, journalId, mainTeacherId }) => {
   const request = await api.post("/classes", {
@@ -30,6 +30,18 @@ export const createClass = async ({ name, journalId, mainTeacherId }) => {
     mainTeacherId,
   });
   return request;
+};
+
+export const getClassAbsentReport = async (name, amount) => {
+  let decoded = name;
+  try {
+    decoded = decodeURIComponent(name);
+  } catch {
+    decoded = name;
+  }
+  const safeSegment = encodeURIComponent(decoded);
+  const request = await api.get(`/classes/absent/${safeSegment}/${amount}`);
+  return request.data.report;
 };
 
 export const updateClass = async ({ newName, name, journalId, mainTeacherId }) => {

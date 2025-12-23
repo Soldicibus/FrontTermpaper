@@ -6,10 +6,10 @@ export const getTeachers = async () => {
   return request.data.teachers;
 };
 
-export const getTeacherSalaryReport = async () => {
-  const request = await api.get("/teacher/salary");
+export const getTeacherSalaryReport = async (id, fromDate, toDate) => {
+  const request = await api.get(`/teacher/salary/${id}/${fromDate}/${toDate}`);
 
-  return request.data;
+  return request.data.salary;
 };
 
 export const getTeachersWithClasses = async (id) => {

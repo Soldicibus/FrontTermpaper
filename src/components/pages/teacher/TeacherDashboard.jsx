@@ -3,13 +3,14 @@ import "../css/Dashboard.css";
 import TeacherClassesPanel from "./TeacherClassesPanel";
 import TeacherClassRatingPanel from "./TeacherClassRatingPanel";
 import TeacherClassView from "./TeacherClassView";
+import TeacherSalaryTab from "./TeacherSalaryTab";
 import { getCurrentUser } from "../../../utils/auth";
 import { useUserData } from "../../../hooks/users";
 import { useTeachersWithClasses } from "../../../hooks/teachers/queries/useTeachersWithClasses";
 
 export default function TeacherDashboard() {
   // Top-level overlay scope
-  const [scope, setScope] = useState("all"); // all | my | rating | class
+  const [scope, setScope] = useState("all"); // all | my | rating | class | salary
   const [prevClassesScope, setPrevClassesScope] = useState("all"); // remember where we came from
   const [selectedClassName, setSelectedClassName] = useState(() => {
     return localStorage.getItem("teacher_selected_class_name") || null;
@@ -80,11 +81,22 @@ export default function TeacherDashboard() {
         >
           Рейтинг класів
         </button>
+        <button
+          onClick={() => {
+            setScope("salary");
+            setClassesLoaded(false);
+          }}
+          className={scope === "salary" ? "active" : ""}
+        >
+          Зарплата
+        </button>
       </div>
 
       <div className="main__content">
         {scope === "rating" ? (
           <TeacherClassRatingPanel />
+        ) : scope === "salary" ? (
+          <TeacherSalaryTab teacherId={myTeacherId} />
         ) : scope === "class" ? (
           <TeacherClassView
             className={selectedClassName}

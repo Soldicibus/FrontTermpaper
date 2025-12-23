@@ -15,6 +15,7 @@ import { useMaterials } from "../../../hooks/materials/queries/useMaterials";
 import { useUserData } from "../../../hooks/users/queries/useUserData";
 import { useHomeworkById } from "../../../hooks/homework/queries/useHomeworkById";
 import { getCurrentUser } from "../../../utils/auth";
+import ClassAbsentTab from "../common/ClassAbsentTab";
 
 export default function TeacherClassView({ className: classNameProp, onBack }) {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
     }
   }, [rawClassName]);
 
-  const [tab, setTab] = useState("view"); // view | homework | schedule
+  const [tab, setTab] = useState("view"); // view | homework | schedule | absent
 
   // Persist selected class name to localStorage whenever it changes (if valid)
   React.useEffect(() => {
@@ -595,8 +596,16 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
           >
             Розклад
           </button>
+          <button
+            onClick={() => setTab("absent")}
+            className={tab === "absent" ? "active" : ""}
+          >
+            Відсутність
+          </button>
         </div>
       )}
+
+      {tab === "absent" && <ClassAbsentTab className={className} />}
 
       {tab === "view" && (
         <>
