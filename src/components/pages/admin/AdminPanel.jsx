@@ -7,21 +7,26 @@ import StudentsTable from "./tables/StudentsTable";
 import TeachersTable from "./tables/TeachersTable";
 import JournalsTable from "./tables/JournalsTable";
 import ParentsTable from "./tables/ParentsTable";
-import RolesTable from "./tables/RolesTable";
 import SubjectsTable from "./tables/SubjectsTable";
 import StudentDataTable from "./tables/StudentDataTable";
 import LessonsTable from "./tables/LessonsTable";
 import HomeworkTable from "./tables/HomeworkTable";
 import TimetablesTable from "./tables/TimetablesTable";
 import DaysTable from "./tables/DaysTable";
+import MaterialsTable from "./tables/MaterialsTable";
 import "../css/AdminLayout.css";
 
 export default function AdminPanel() {
   const [activeTab, setActiveTab] = useState("dashboard");
-  const { data: currentUser } = getCurrentUser();
-  const roleName = currentUser?.role_name || currentUser?.role || null;
+  
+    const currentUser = getCurrentUser();
+    const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;
+    const userRole = currentUser?.role || currentUser?.role_name || userRes?.role || null;
 
-  if (roleName !== 'admin' && roleName !== 'sadmin') {
+  if (userRole !== 'admin' && userRole !== 'sadmin') {
+    if (import.meta.env?.VITE_API_DEV === 'true') {
+      console.warn(`AdminPanel: access denied for role '${userRole}' and userId '${userId || 'unknown'}'`);
+    }
     return <main className="main">Доступ заборонено</main>;
   }
 
@@ -33,13 +38,13 @@ export default function AdminPanel() {
     { id: 'teachers', label: 'Teachers' },
     { id: 'journals', label: 'Journals' },
     { id: 'parents', label: 'Parents' },
-    { id: 'roles', label: 'Roles' },
     { id: 'subjects', label: 'Subjects' },
     { id: 'student-data', label: 'Student Data' },
     { id: 'lessons', label: 'Lessons' },
     { id: 'homework', label: 'Homework' },
     { id: 'timetables', label: 'Timetables' },
     { id: 'days', label: 'Days' },
+    { id: 'materials', label: 'Materials' }
   ];
 
   return (
@@ -48,20 +53,19 @@ export default function AdminPanel() {
         <h1>Панель адміністратора</h1>
       </div>
 
-      <div className="admin-nav">
+      <div className="tabs" style={{ flexWrap: 'wrap', height: 'auto' }}>
         {tabs.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`admin-nav-link ${activeTab === tab.id ? 'active' : ''}`}
-            style={{ border: 'none', cursor: 'pointer', fontSize: '1rem' }}
+            className={activeTab === tab.id ? "active" : ""}
           >
             {tab.label}
           </button>
         ))}
       </div>
 
-      <div className="main__content" style={{ marginTop: '20px' }}>
+      <div className="main__content">
         {activeTab === 'dashboard' && <AdminDashboard />}
         {activeTab === 'users' && <UsersTable />}
         {activeTab === 'classes' && <ClassesTable />}
@@ -69,14 +73,15 @@ export default function AdminPanel() {
         {activeTab === 'teachers' && <TeachersTable />}
         {activeTab === 'journals' && <JournalsTable />}
         {activeTab === 'parents' && <ParentsTable />}
-        {activeTab === 'roles' && <RolesTable />}
         {activeTab === 'subjects' && <SubjectsTable />}
         {activeTab === 'student-data' && <StudentDataTable />}
         {activeTab === 'lessons' && <LessonsTable />}
         {activeTab === 'homework' && <HomeworkTable />}
         {activeTab === 'timetables' && <TimetablesTable />}
         {activeTab === 'days' && <DaysTable />}
+        {activeTab === 'materials' && <MaterialsTable />}
       </div>
     </main>
   );
 }
+

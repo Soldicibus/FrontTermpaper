@@ -11,18 +11,20 @@ export const getDayById = async (id) => {
   return data.day;
 };
 
-export const createDay = async (dayName, dayTime, dayWeekday) => {
+export const createDay = async ({ subjectId, timetableId, dayTime, dayWeekday }) => {
   const request = await api.post("/days", {
-    dayName,
+    subjectId,
+    timetableId,
     dayTime,
     dayWeekday,
   });
   return request;
 };
 
-export const updateDay = async (id, dayName, dayTime, dayWeekday) => {
+export const updateDay = async ({ id, subjectId, timetableId, dayTime, dayWeekday }) => {
   const request = await api.patch(`/days/${id}`, {
-    dayName,
+    subjectId,
+    timetableId,
     dayTime,
     dayWeekday,
   });

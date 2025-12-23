@@ -43,9 +43,11 @@ api.interceptors.response.use(
   },
   (error) => {
     if (error.response?.status === 401) {
-      console.log("Unauthorized - redirecting to main page");
+      console.log("Unauthorized - logging out");
 
-      redirect("/");
+      localStorage.removeItem("accessToken");
+
+      redirect("/login");
     }
 
     if (error.response?.status === 403) {

@@ -14,7 +14,7 @@ import RequireRole from "./components/RequireRole";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { me } from './api/auth.js';
-import AdminDashboard from "./components/pages/admin/AdminDashboard.jsx";
+import AdminPanel from "./components/pages/admin/AdminPanel.jsx";
 
 // initialize a single client for the app
 const queryClient = new QueryClient();
@@ -43,7 +43,7 @@ function App() {
         <Route path="/" element={<Mainpage />} />
         <Route path="/student/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Student"]}><StudentDashboard /></RequireRole></RequireAuth>} />
 
-        <Route path="/admin/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Admin","SAdmin"]}><AdminDashboard /></RequireRole></RequireAuth>} />
+        <Route path="/admin/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Admin","SAdmin"]}><AdminPanel /></RequireRole></RequireAuth>} />
 
         <Route path="/parent/overview" element={<RequireAuth><RequireRole allowedRoles={["Parent"]}><ParentOverview /></RequireRole></RequireAuth>} />
         <Route path="/teacher/dashboard" element={<RequireAuth><RequireRole allowedRoles={["Teacher"]}><TeacherDashboard /></RequireRole></RequireAuth>} />

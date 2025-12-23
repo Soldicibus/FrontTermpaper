@@ -23,7 +23,7 @@ export const getClassRatingReport = async () => {
   return request.data.report;
 }
 
-export const createClass = async (name, journalId, mainTeacherId) => {
+export const createClass = async ({ name, journalId, mainTeacherId }) => {
   const request = await api.post("/classes", {
     name,
     journalId,
@@ -32,14 +32,31 @@ export const createClass = async (name, journalId, mainTeacherId) => {
   return request;
 };
 
-export const updateClass = async (name, mainTeacherId) => {
-  const request = await api.patch(`/classes/${name}`, {
+export const updateClass = async ({ newName, name, journalId, mainTeacherId }) => {
+  let decoded = name;
+  try {
+    decoded = decodeURIComponent(name);
+  } catch {
+    decoded = name;
+  }
+  const safeSegment = encodeURIComponent(decoded);
+  const request = await api.patch(`/classes/${safeSegment}`, {
+    name,
+    newName,
+    journalId,
     mainTeacherId,
   });
   return request;
 };
 
 export const deleteClass = async (name) => {
-  const request = await api.delete(`/classes/${name}`);
+  let decoded = name;
+  try {
+    decoded = decodeURIComponent(name);
+  } catch {
+    decoded = name;
+  }
+  const safeSegment = encodeURIComponent(decoded);
+  const request = await api.delete(`/classes/${safeSegment}`);
   return request;
 };

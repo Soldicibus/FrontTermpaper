@@ -1,5 +1,11 @@
 import api from "./lib/api.js";
 
+export const getUserRoles = async () => {
+  const request = await api.get("/userroles");
+
+  return request.data;
+};
+
 export const getRolesByUserId = async (userId) => {
   const request = await api.get(`/userroles/${userId}`);
 

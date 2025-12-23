@@ -12,10 +12,16 @@ export const getChildren = async (parentId) => {
   return data.students ?? data;
 }
 
-export const assignParentToStudent = async (studentId, parentId) => {
+export const assignParentToStudent = async (studentIdOrObj, parentId) => {
+  let studentId = studentIdOrObj;
+  let pId = parentId;
+  if (studentIdOrObj && typeof studentIdOrObj === 'object') {
+    studentId = studentIdOrObj.studentId;
+    pId = studentIdOrObj.parentId;
+  }
   const request = await api.post("/studentparents/assign", {
     studentId,
-    parentId,
+    parentId: pId,
   });
   return request;
 };

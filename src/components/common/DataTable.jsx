@@ -13,7 +13,8 @@ export default function DataTable({
   canEdit = true,
   canDelete = true,
   canCreate = true,
-  canResetPassword = false
+  canResetPassword = false,
+  extraAction = null,
 }) {
   if (isLoading) return <div>Loading...</div>;
 
@@ -21,9 +22,12 @@ export default function DataTable({
     <div className="data-table-container">
       <div className="data-table-header">
         <h2>{title}</h2>
-        {canCreate && onCreate && (
-          <button className="btn btn-primary" onClick={onCreate}>Create New</button>
-        )}
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {canCreate && onCreate && (
+            <button className="btn btn-primary" onClick={onCreate}>Create New</button>
+          )}
+          {extraAction}
+        </div>
       </div>
       <table className="data-table">
         <thead>
@@ -36,22 +40,27 @@ export default function DataTable({
         </thead>
         <tbody>
           {data?.map((row, rowIndex) => (
-            <tr key={rowIndex}>
+            <tr 
+              key={rowIndex} 
+              onClick={() => canEdit && onEdit && onEdit(row)}
+              style={{ cursor: canEdit && onEdit ? 'pointer' : 'default' }}
+              className="data-table-row"
+            >
               {columns.map((col, colIndex) => (
                 <td key={colIndex}>
                   {col.render ? col.render(row) : row[col.accessor]}
                 </td>
               ))}
               {(canEdit || canDelete || canResetPassword) && (
-                <td className="actions-cell">
+                <td className="actions-cell" onClick={(e) => e.stopPropagation()}>
                   {canEdit && onEdit && (
-                    <button className="btn btn-small btn-edit" onClick={() => onEdit(row)}>Edit</button>
+                    <button className="btn btn-small btn-edit" onClick={(e) => { e.stopPropagation(); onEdit(row); }}>Edit</button>
                   )}
                   {canResetPassword && onResetPassword && (
-                    <button className="btn btn-small btn-warning" onClick={() => onResetPassword(row)}>Reset Pass</button>
+                    <button className="btn btn-small btn-warning" onClick={(e) => { e.stopPropagation(); onResetPassword(row); }}>Reset Pass</button>
                   )}
                   {canDelete && onDelete && (
-                    <button className="btn btn-small btn-danger" onClick={() => onDelete(row)}>Delete</button>
+                    <button className="btn btn-small btn-danger" onClick={(e) => { e.stopPropagation(); onDelete(row); }}>Delete</button>
                   )}
                 </td>
               )}

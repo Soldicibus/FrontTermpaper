@@ -15,7 +15,7 @@ export const getUserData = async (id) => {
   return request.data;
 };
 
-export const createUser = async (username, email, password) => {
+export const createUser = async ({ username, email, password }) => {
   const request = await api.post("/users", {
     username,
     email,
@@ -23,15 +23,15 @@ export const createUser = async (username, email, password) => {
   });
   return request.data;
 };
-export const resetPassword = async (user_id, p_new_password) => {
+export const resetPassword = async ({ userId, newPassword }) => {
   const request = await api.post("/users/reset-password", {
-    user_id,
-    p_new_password,
+    userId,
+    newPassword,
   });
   return request.data;
 };
 
-export const updateUser = async (id, username, email, password) => {
+export const updateUser = async ({ id, username, email, password }) => {
   const request = await api.patch(`/users/${id}`, {
     username,
     email,

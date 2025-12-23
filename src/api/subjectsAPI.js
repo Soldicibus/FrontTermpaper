@@ -6,7 +6,7 @@ export const getAllSubjects = async () => {
   return request.data.subjects;
 };
 
-export const createSubject = async (name, program) => {
+export const createSubject = async ({ name, program }) => {
   const request = await api.post("/subjects", {
     name,
     program,

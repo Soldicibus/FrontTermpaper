@@ -17,7 +17,7 @@ export const getJournalByStudent = async (studentId) => {
   return data.journals;
 };
 
-export const createJournal = async (teacherId, name) => {
+export const createJournal = async ({ teacherId, name }) => {
   const request = await api.post("/journals", {
     teacherId,
     name,
@@ -25,7 +25,7 @@ export const createJournal = async (teacherId, name) => {
   return request;
 };
 
-export const updateJournal = async (id, teacherId, name) => {
+export const updateJournal = async ({ id, teacherId, name }) => {
   const request = await api.patch(`/journals/${id}`, {
     teacherId,
     name,

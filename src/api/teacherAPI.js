@@ -37,7 +37,7 @@ export const getTeacherById = async (id) => {
   return data.teacher ?? data;
 };
 
-export const createTeacher = async (name, surname, patronym, phone) => {
+export const createTeacher = async ({ name, surname, patronym, phone }) => {
   const request = await api.post("/teacher", {
     name,
     surname,
@@ -47,20 +47,18 @@ export const createTeacher = async (name, surname, patronym, phone) => {
   return request;
 };
 
-export const patchTeacher = async (
+export const patchTeacher = async ({
   id,
   name,
   surname,
   patronym,
   phone,
-  user_id = null,
-) => {
+}) => {
   const request = await api.patch(`/teacher/${id}`, {
     name,
     surname,
     patronym,
     phone,
-    user_id,
   });
 
   return request;

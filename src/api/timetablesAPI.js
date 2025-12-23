@@ -22,18 +22,18 @@ export const getTimetableById = async (id) => {
   return request.data.timetable ?? request.data;
 };
 
-export const createTimetable = async (name, classId) => {
+export const createTimetable = async ({ name, class_name }) => {
   const request = await api.post("/timetables", {
     name,
-    classId,
+    class_name,
   });
   return request;
 };
 
-export const updateTimetable = async (id, name, classId) => {
+export const updateTimetable = async ({ id, name, class_name }) => {
   const request = await api.patch(`/timetables/${id}`, {
     name,
-    classId,
+    class_name,
   });
   return request;
 };

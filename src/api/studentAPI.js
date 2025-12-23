@@ -63,14 +63,14 @@ export const getStudentById = async (id) => {
   return data.student ?? data;
 };
 
-export const createStudent = async (
+export const createStudent = async ({
   name,
   surname,
   patronym,
   phone,
   class_c,
-) => {
-  const request = await api.post("/studens", {
+}) => {
+  const request = await api.post("/students", {
     name,
     surname,
     patronym,
@@ -81,29 +81,27 @@ export const createStudent = async (
   return request;
 };
 
-export const patchStudent = async (
+export const patchStudent = async ({
   id,
   name,
   surname,
   patronym,
   phone,
   class_c,
-  user_id = null,
-) => {
-  const request = await api.patch(`/studens/${id}`, {
+}) => {
+  const request = await api.patch(`/students/${id}`, {
     name,
     surname,
     patronym,
     phone,
     class_c,
-    user_id,
   });
 
   return request;
 };
 
 export const deleteStudent = async (id) => {
-  const request = await api.delete(`/studens/${id}`);
+  const request = await api.delete(`/students/${id}`);
 
   return request;
 };

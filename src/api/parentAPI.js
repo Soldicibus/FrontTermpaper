@@ -12,7 +12,7 @@ export const getParentById = async (id) => {
   return data.parent;
 };
 
-export const createParent = async (name, surname, patronym, phone) => {
+export const createParent = async ({ name, surname, patronym, phone }) => {
   const request = await api.post("/parents", {
     name,
     surname,
@@ -23,20 +23,18 @@ export const createParent = async (name, surname, patronym, phone) => {
   return request;
 };
 
-export const patchParent = async (
+export const patchParent = async ({
   id,
   name,
   surname,
   patronym,
   phone,
-  user_id = null,
-) => {
+}) => {
   const request = await api.patch(`/parents/${id}`, {
     name,
     surname,
     patronym,
     phone,
-    user_id,
   });
 
   return request;

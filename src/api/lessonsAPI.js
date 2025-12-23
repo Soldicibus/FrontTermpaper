@@ -43,7 +43,7 @@ export const createLesson = async ({
   return request;
 };
 
-export const updateLesson = async (
+export const updateLesson = async ({
   id,
   name,
   className,
@@ -51,7 +51,7 @@ export const updateLesson = async (
   materialId,
   teacherId,
   date,
-) => {
+}) => {
   const request = await api.patch(`/lessons/${id}`, {
     name,
     className,

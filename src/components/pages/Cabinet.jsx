@@ -9,17 +9,21 @@ export default function Cabinet() {
   const logout = useLogout();
   const navigate = useNavigate();
   const currentUser = getCurrentUser();
-  const userId = currentUser?.id || null;
-  let isLoading = false;
-  let error = null;
-  let user = null;
-  const role = currentUser?.role || null;
+  // Token payloads may use different fields for id depending on issuer.
+  const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || currentUser?.user_id || null;
+  const role = currentUser?.role || currentUser?.roles || null;
 
-  if (role !== 'user' && role !== 'admin' && role !== 'sadmin') {
-    const { data: userRes, isLoading, error } = useUserData(userId);
-    const user = userRes?.userData ?? userRes?.user ?? userRes ?? null;
-  }
+  // Call hook unconditionally (hooks must not be called conditionally).
+  // The hook itself will not run network requests if `userId` is falsy (it uses `enabled: !!id`).
+  const { data: userRes, isLoading, error } = useUserData(userId);
+  const user = userRes?.userData ?? userRes?.user ?? userRes ?? null;
   const isApiDev = import.meta.env?.VITE_API_DEV === 'true';
+
+  if (role !== 'admin' && role !== 'sadmin') {
+    const user = null;
+    const isLoading = false;
+    const error = null;
+  }
 
   const logDbRole = async () => {
     try {
@@ -45,8 +49,6 @@ export default function Cabinet() {
                     <h2>Інформація про користувача</h2>
                     {isLoading ? (
                       <p>Loading profile...</p>
-                    ) : error ? (
-                      <p>Error loading profile: {error.message || 'Unknown error'}</p>
                     ) : user ? (
                       <>
                         <p>Ім'я: {user?.name || user?.username || '—'}</p>
@@ -54,11 +56,13 @@ export default function Cabinet() {
                         <p>По-батькові: {user?.patronym || '—'}</p>
                         <p>Пошта: {user?.email || '—'}</p>
                         <p>Телефон: {user?.phone || '—'}</p>
-                        <p>Роль: {user?.role || payload?.role || '—'}</p>
+                        <p>Роль: {user?.role || (Array.isArray(role) ? role.join(', ') : role) || '—'}</p>
                       </>
-                    ) : (
-                      <p>Користувача не знайдено або ви є <strong>{role}</strong></p>
-                    )}
+                    ) : user === null ? (
+                      <p>Користувача не знайдено або ви є <strong>{role}</strong> та за вами не закріплено жодного профілю.</p>
+                    ) : error ? (
+                      <p>Error loading profile: {error.message || 'Unknown error'}</p>
+                    ) : null}
                     <button onClick={onLogout}>Вийти</button>
 
                     {isApiDev && (

@@ -11,7 +11,7 @@ export const getMaterialById = async (id) => {
   return data.material;
 };
 
-export const createMaterial = async (name, description, link) => {
+export const createMaterial = async ({ name, description, link }) => {
   const request = await api.post("/materials", {
     name,
     description,
@@ -20,7 +20,7 @@ export const createMaterial = async (name, description, link) => {
   return request;
 };
 
-export const updateMaterial = async (id, name, description, link) => {
+export const updateMaterial = async ({ id, name, description, link }) => {
   const request = await api.patch(`/materials/${id}`, {
     name,
     description,
