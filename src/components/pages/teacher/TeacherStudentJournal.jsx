@@ -698,9 +698,16 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
                           padding: "6px 10px",
                           borderRadius: 8,
                           border: "1px solid #eee",
-                          background: "white",
+                          background: "#f9f9f9"
                         }}>
-                          {mainItem.mark != null ? mainItem.mark : mainItem.status || "—"}
+                          {(() => {
+                            const marks = mainGroup.filter(i => i.mark != null).map(i => Number(i.mark));
+                            if (marks.length > 1) {
+                              const avg = marks.reduce((a, b) => a + b, 0) / marks.length;
+                              return avg % 1 === 0 ? avg : avg.toFixed(1);
+                            }
+                            return mainItem.mark != null ? mainItem.mark : (mainItem.status || "—");
+                          })()}
                         </div>
                       </div>
 
@@ -725,8 +732,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
                                 textAlign: "left",
                               }}
                             >
-                              <div style={{ color: "#444" }}>{formatTime(mi.lesson_date || mi.date)}</div>
-                              <div style={{ fontWeight: 800 }}>{mi.mark != null ? mi.mark : mi.status || "—"}</div>
+                              <div style={{ fontWeight: 800, color: "#000" }}>{mi.mark != null ? mi.mark : mi.status || "—"}</div>
                             </button>
                           ))}
                         </div>

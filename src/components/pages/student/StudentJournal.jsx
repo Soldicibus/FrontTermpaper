@@ -80,15 +80,23 @@ export default function StudentJournal({ studentId: propStudentId }) {
                         <div>
                           <div style={{ fontSize: 16, fontWeight: 600 }}>{mainSubjectName}</div>
                         </div>
-                        <div style={{ fontSize: 20, fontWeight: 700 }}>{mainItem.mark != null ? mainItem.mark : (mainItem.status || '—')}</div>
+                        <div style={{ fontSize: 20, fontWeight: 700 }}>
+                          {(() => {
+                            const marks = mainGroup.filter(i => i.mark != null).map(i => Number(i.mark));
+                            if (marks.length > 1) {
+                              const avg = marks.reduce((a, b) => a + b, 0) / marks.length;
+                              return avg % 1 === 0 ? avg : avg.toFixed(1);
+                            }
+                            return mainItem.mark != null ? mainItem.mark : (mainItem.status || '—');
+                          })()}
+                        </div>
                       </div>
 
                       {/* if multiple marks for main subject, list them */}
                       {mainGroup.length > 1 && (
                         <div style={{ marginTop: 8, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                           {mainGroup.map((mi, ii) => (
-                            <div key={ii} style={{ padding: '6px 8px', borderRadius: 4, border: '1px solid #eee', background: '#fafafa', fontSize: 13 }}>
-                              <div style={{ color: '#444' }}>{formatTime(mi.lesson_date || mi.date)}</div>
+                            <div key={ii} style={{ padding: '6px 8px', borderRadius: 4, border: '1px solid #eee', background: '#fafafa', fontSize: 13, color: '#000' }}>
                               <div style={{ fontWeight: 700 }}>{mi.mark != null ? mi.mark : (mi.status || '—')}</div>
                             </div>
                           ))}

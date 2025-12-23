@@ -11,7 +11,9 @@ export default function TeacherDashboard() {
   // Top-level overlay scope
   const [scope, setScope] = useState("all"); // all | my | rating | class
   const [prevClassesScope, setPrevClassesScope] = useState("all"); // remember where we came from
-  const [selectedClassName, setSelectedClassName] = useState(null);
+  const [selectedClassName, setSelectedClassName] = useState(() => {
+    return localStorage.getItem("teacher_selected_class_name") || null;
+  });
   const [myClasses, setMyClasses] = useState([]);
   const [classesLoaded, setClassesLoaded] = useState(false);
 
@@ -24,7 +26,7 @@ export default function TeacherDashboard() {
   const entityId = user?.entity_id ?? user?.entityId ?? userRes?.entity_id ?? null;
 
   const myTeacherId =
-    user?.teacher_id || user?.teacherId || payload?.teacherId || entityId || null;
+    user?.teacher_id || user?.teacherId || entityId || null;
 
   const { data: twcRes } = useTeachersWithClasses(myTeacherId);
   const myFirstClassName = useMemo(() => {
@@ -55,8 +57,10 @@ export default function TeacherDashboard() {
           onClick={() => {
             setPrevClassesScope("my");
             const first = myFirstClassName ?? myClasses?.[0] ?? null;
+            // Always override selection to the teacher's class when clicking "Мій клас"
             if (first) {
-              setSelectedClassName((prev) => prev ?? first);
+              setSelectedClassName(first);
+              localStorage.setItem("teacher_selected_class_name", first);
               setScope("class");
               return;
             }
@@ -92,6 +96,7 @@ export default function TeacherDashboard() {
             selectedClassName={selectedClassName}
             onSelectClassName={(c) => {
               setSelectedClassName(c);
+              localStorage.setItem("teacher_selected_class_name", c);
               setPrevClassesScope(scope);
               setScope("class");
             }}

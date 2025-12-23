@@ -35,6 +35,13 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
 
   const [tab, setTab] = useState("view"); // view | homework | schedule
 
+  // Persist selected class name to localStorage whenever it changes (if valid)
+  React.useEffect(() => {
+    if (className) {
+      localStorage.setItem("teacher_selected_class_name", className);
+    }
+  }, [className]);
+
   const [selectedStudent, setSelectedStudent] = useState(null); // { id, name, surname }
   const [selectedHomework, setSelectedHomework] = useState(null);
   const [hwModal, setHwModal] = useState(null); // { type: 'create'|'edit'|'delete', data: ... }

@@ -71,7 +71,7 @@ export default function TeacherClassesPanel({
   }, [teachersWithClassesRes]);
 
   const myTeacherId =
-    user?.teacher_id || user?.teacherId || payload?.teacherId || entityId || null;
+    user?.teacher_id || user?.teacherId || entityId || null;
 
   const myClasses = useMemo(() => {
     if (!myTeacherId) return [];
@@ -98,23 +98,21 @@ export default function TeacherClassesPanel({
       teacherId: myTeacherId,
       entityId,
       myClasses,
-      allRows: onlyMyClasses ? teachersWithClasses : allClasses,
+      allRows: teachersWithClasses,
     });
   }, [
     isUserLoading,
     userErr,
-    userErr,
-    onlyMyClasses,
     isAllClassesLoading,
     allClassesErr,
     isTwcLoading,
     twcErr,
-    onLoaded,
+    onlyMyClasses,
     myTeacherId,
     entityId,
     myClasses,
     teachersWithClasses,
-    allClasses,
+    // onLoaded is intentionally omitted to avoid loops if it's not memoized
   ]);
 
   const visibleClasses = onlyMyClasses ? myClasses : allClasses;
