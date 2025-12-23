@@ -191,18 +191,22 @@ export default function UsersTable() {
       header: 'Actions',
       render: (item) => (
         <div className="flex space-x-2">
+          {(permissions.users.edit) && (
           <button
             onClick={() => handleEdit(item)}
             className="text-indigo-600 hover:text-indigo-900"
           >
             Edit
           </button>
+          )}
+          {(permissions.users.managingRoles) && (
           <button
             onClick={() => handleManageRoles(item)}
             className="text-green-600 hover:text-green-900"
           >
             Roles
           </button>
+          )}
           {(permissions.users.resetPassword) && (
             <button
               onClick={() => handleResetPassword(item)}
@@ -211,12 +215,14 @@ export default function UsersTable() {
               Reset Pwd
             </button>
           )}
+          {(permissions.users.delete) && (
           <button
             onClick={() => handleDelete(item)}
             className="text-red-600 hover:text-red-900"
           >
             Delete
           </button>
+          )}
         </div>
       )
     }

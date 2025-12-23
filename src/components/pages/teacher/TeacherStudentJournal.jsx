@@ -10,6 +10,7 @@ import { useMaterials } from "../../../hooks/materials/queries/useMaterials";
 import { useUserData } from "../../../hooks/users/queries/useUserData";
 import { getCurrentUser } from "../../../utils/auth";
 import { useStudent } from "../../../hooks/students/queries/useStudent";
+import { useTimetableByStudent } from "../../../hooks/timetables/queries/useTimetableByStudent";
 
 function formatDateShort(value) {
   if (!value) return "—";
@@ -58,6 +59,8 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
   const updateStudentData = useUpdateStudentData();
   const deleteStudentData = useDeleteStudentData();
   const { data: student } = useStudent(studentId);
+  const { data: timetable } = useTimetableByStudent(studentId);
+  console.log("timetable:", timetable);
   const createLesson = useCreateLesson();
 
   const { data: subjects } = useSubjects();
@@ -164,15 +167,21 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
       // marks7d is an array of entries. We can try to get journal_id from the first entry if available.
       // Or maybe the backend handles it?
       // The API requires journalId.
-      // Let's try to find a journalId from existing marks.
-      const existingJournalId = entries[0]?.journal_id || entries[0]?.journalId;
-      
-      // If no existing entries, we might have a problem.
-      // But maybe we can pass null and backend handles it?
-      // Let's try passing null if not found.
-      
+      // The 7d marks hook returns the journal id as well.
+      let journalId = marks7d?.journalId || marks7d?.journal_id || entries[0]?.journal_id || entries[0]?.journalId;
+
+      if (!journalId) {
+        // Fallback to timetable ID if marks7d is empty/null
+        // The prompt says "timetable_id = journal_id for the most part"
+        if (Array.isArray(timetable) && timetable.length > 0) {
+           journalId = timetable[0]?.get_timetable_id_by_student_id;
+        } else {
+           journalId = timetable?.get_timetable_id_by_student_id || timetable?.id || timetable?.timetable_id || timetable?.journal_id;
+        }
+      }
+
       await createStudentData.mutateAsync({
-        journalId: existingJournalId || null,
+        journalId: journalId || null,
         studentId: studentId,
         lesson: lessonId,
         mark: form.mark ? Number(form.mark) : null,
@@ -446,7 +455,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
 
     if (modal.type === "create") {
       return (
-        <div style={overlayStyle} onClick={closeModal} role="dialog" aria-modal="true">
+        <div style={overlayStyle} role="dialog" aria-modal="true">
           <div style={boxStyle} onClick={stop}>
             <div style={headerStyle}>
               <div>
@@ -770,6 +779,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
                                 borderRadius: 8,
                                 border: "1px solid #eee",
                                 background: "white",
+                                color: "#222",
                               }}>
                                 {o.items[0]?.mark != null ? o.items[0].mark : o.items[0]?.status || "—"}
                               </div>

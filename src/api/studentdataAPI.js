@@ -13,7 +13,7 @@ export const getStudentDataById = async (id) => {
 
 export const getStudentDataMarks7d = async (studentId) => {
   const request = await api.get(`/studentdata/journal/${studentId}`);
-  return request.data;
+  return request.data.marks;
 };
 
 export const createStudentData = async ({

@@ -102,7 +102,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
       });
     } else if (type === "edit" && data) {
       const rawDue = data.homework_duedate || data.due || "";
-      const formattedDue = rawDue ? new Date(rawDue).toISOString().slice(0, 16) : "";
+      const formattedDue = rawDue ? new Date(rawDue).toISOString().slice(0, 10) : "";
       setHwForm({
         name: data.homework_name || data.title || "",
         desc: data.homework_desc || data.desc || "",
@@ -341,7 +341,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
 
     if (hwModal.type === "create") {
       return (
-        <div style={overlayStyle} onClick={closeModal}>
+        <div style={overlayStyle}>
           <div style={boxStyle} onClick={stop}>
             <div style={headerStyle}>
               <div>
@@ -374,7 +374,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
               <label style={{ display: "grid", gap: 6 }}>
                 <div style={{ fontWeight: 700 }}>Термін здачі</div>
                 <input 
-                  type="datetime-local" 
+                  type="date" 
                   value={hwForm.due}
                   onChange={e => setHwForm({...hwForm, due: e.target.value})}
                   style={{ padding: 10, borderRadius: 10, border: "1px solid #e6e6e6" }} 
@@ -520,7 +520,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
               <label style={{ display: "grid", gap: 6 }}>
                 <div style={{ fontWeight: 700 }}>Термін здачі</div>
                 <input 
-                  type="datetime-local" 
+                  type="date" 
                   value={hwForm.due}
                   onChange={e => setHwForm({...hwForm, due: e.target.value})}
                   style={{ padding: 10, borderRadius: 10, border: "1px solid #e6e6e6" }} 
