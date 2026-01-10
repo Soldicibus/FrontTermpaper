@@ -20,11 +20,16 @@ export const getStudentRanking = async () => {
   const data = request.data;
   return data;
 };
+export const getStudentPerformanceMatrix = async (studentId) => {
+  const request = await api.get(`/students/performance-matrix/${studentId}`);
+  const data = request.data;
+  return data.students ?? data;
+};
 export const getStudentByParentId = async (id) => {
   const request = await api.get(`/students/by-parent/${id}`);
   const data = request.data;
   return data.student ?? data;
-}
+};
 export const getGradesAndAbsences = async (id) => {
   const request = await api.get(`/students/grades-and-absences/${id}`);
 

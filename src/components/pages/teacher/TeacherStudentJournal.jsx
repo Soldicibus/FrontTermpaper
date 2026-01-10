@@ -292,6 +292,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
     const btnStyle = {
       padding: "8px 12px",
       borderRadius: 10,
+      background: "#ff0000ff",
       border: "1px solid #e6e6e6",
       cursor: "pointer",
       fontWeight: 700,
@@ -316,7 +317,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
     if (modal.type === "actions") {
       const entry = modal.entry;
       return (
-        <div style={overlayStyle} onClick={closeModal} role="dialog" aria-modal="true">
+        <div style={overlayStyle} role="dialog" aria-modal="true">
           <div style={boxStyle} onClick={stop}>
             <div style={headerStyle}>
               <div>
@@ -388,7 +389,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
     if (modal.type === "edit") {
       const entry = modal.entry;
       return (
-        <div style={overlayStyle} onClick={closeModal} role="dialog" aria-modal="true">
+        <div style={overlayStyle} role="dialog" aria-modal="true">
           <div style={boxStyle} onClick={stop}>
             <div style={headerStyle}>
               <div>

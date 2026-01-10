@@ -200,6 +200,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
     const btnStyle = {
       padding: "8px 12px",
       borderRadius: 10,
+      background: "#ff0000ff",
       border: "1px solid #e6e6e6",
       cursor: "pointer",
       fontWeight: 700,
@@ -216,7 +217,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
       ...btnStyle,
       border: "1px solid #d5e7ff",
       background: "#f0f7ff",
-      color: "#124a9e",
+      color: "#179e12ff",
     };
 
     const stop = (e) => e.stopPropagation();
@@ -237,7 +238,6 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
             date: hwForm.newLessonDate || new Date().toISOString(),
           });
           
-          // The API returns the axios response object, so we need to access .data
           const resData = newLessonRes?.data || newLessonRes;
           lessonId = resData?.lessonId || resData?.id || resData?.insertId;
         } else {
@@ -490,7 +490,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
     if (hwModal.type === "edit") {
       const { data } = hwModal;
       return (
-        <div style={overlayStyle} onClick={closeModal}>
+        <div style={overlayStyle}>
           <div style={boxStyle} onClick={stop}>
             <div style={headerStyle}>
               <div>
