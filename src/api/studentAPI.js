@@ -42,6 +42,13 @@ export const getStudentPerformanceMatrix = async (studentId) => {
   const data = request.data;
   return data.students ?? data;
 };
+export const getStudentMonthlyMarks = async (studentId, month) => {
+  // month should be a string in YYYY-MM-DD or YYYY-MM format, or null
+  const request = await api.get(`/students/monthly-marks/${studentId}`, {
+    params: { month },
+  });
+  return request.data;
+};
 export const getStudentByParentId = async (id) => {
   const request = await api.get(`/students/by-parent/${id}`);
   const data = request.data;
