@@ -10,6 +10,7 @@ import Modal from '../../../common/Modal';
 import { useAssignRole } from '../../../../hooks/userroles/mutations/useAssignRole';
 import { useRemoveRoleFromUser } from '../../../../hooks/userroles/mutations/useRemoveRoleFromUser';
 import { useResetPassword } from '../../../../hooks/users/mutations/useResetPassword';
+import ErrorModal from '../../../common/ErrorModal';
 
 const ROLE_MAP = {
   1: 'SAdmin',
@@ -31,6 +32,8 @@ export default function UsersTable() {
   const assignRoleMutation = useAssignRole();
   const removeRoleMutation = useRemoveRoleFromUser();
   const resetPasswordMutation = useResetPassword();
+
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
@@ -84,7 +87,7 @@ export default function UsersTable() {
         await deleteMutation.mutateAsync(item.user_id);
       } catch (error) {
         console.error('Failed to delete user:', error);
-        alert('Failed to delete user');
+        setErrorMessage('Failed to delete user: ' + (error.message || error));
       }
     }
   };
@@ -113,7 +116,7 @@ export default function UsersTable() {
         // But based on backend, it seems to require password.
         // I'll warn if password is empty for update.
         if (!formData.password) {
-            alert("Password is required for update (backend limitation).");
+            setErrorMessage("Password is required for update (backend limitation).");
             return;
         }
         await updateMutation.mutateAsync({
@@ -126,7 +129,7 @@ export default function UsersTable() {
       setIsModalOpen(false);
     } catch (error) {
       console.error('Failed to save user:', error);
-      alert('Failed to save user');
+      setErrorMessage('Failed to save user: ' + (error.message || error));
     }
   };
 
@@ -151,7 +154,7 @@ export default function UsersTable() {
       });
       setIsRoleModalOpen(false);
     } catch (error) {
-      alert('Error assigning role: ' + error.message);
+      setErrorMessage('Error assigning role: ' + error.message);
     }
   };
 
@@ -163,7 +166,7 @@ export default function UsersTable() {
           roleId: parseInt(roleId)
         });
       } catch (error) {
-        alert('Error removing role: ' + error.message);
+        setErrorMessage('Error removing role: ' + error.message);
       }
     }
   };
@@ -178,7 +181,7 @@ export default function UsersTable() {
       setIsPasswordModalOpen(false);
       alert('Password reset successfully');
     } catch (error) {
-      alert('Error resetting password: ' + error.message);
+      setErrorMessage('Error resetting password: ' + error.message);
     }
   };
 
@@ -242,6 +245,8 @@ export default function UsersTable() {
         canDelete={false} // Custom actions column handles this
         canCreate={permissions.users.create}
       />
+      
+      <ErrorModal error={errorMessage} onClose={() => setErrorMessage(null)} />
 
       <Modal
         isOpen={isModalOpen}
@@ -391,6 +396,13 @@ export default function UsersTable() {
           </div>
         </form>
       </Modal>
+
+      <ErrorModal
+        isOpen={!!errorMessage}
+        onClose={() => setErrorMessage(null)}
+        title="Error"
+        message={errorMessage}
+      />
     </>
   );
 }

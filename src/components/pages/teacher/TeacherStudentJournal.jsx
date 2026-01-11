@@ -179,7 +179,6 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
            journalId = timetable?.get_timetable_id_by_student_id || timetable?.id || timetable?.timetable_id || timetable?.journal_id;
         }
       }
-
       await createStudentData.mutateAsync({
         journalId: journalId || null,
         studentId: studentId,
@@ -205,7 +204,16 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
       }
 
       // For update, we keep existing lesson and journal
-      const journalId = entry.journal_id || entry.journalId;
+      let journalId = entry.journal_id || entry.journalId || null;
+      if (!journalId) {
+        // Fallback to timetable ID if marks7d is empty/null
+        // The prompt says "timetable_id = journal_id for the most part"
+        if (Array.isArray(timetable) && timetable.length > 0) {
+           journalId = timetable[0]?.get_timetable_id_by_student_id;
+        } else {
+           journalId = timetable?.get_timetable_id_by_student_id || timetable?.id || timetable?.timetable_id || timetable?.journal_id;
+        }
+      }
       const lessonId = entry.lesson_id || entry.lessonId;
 
       await updateStudentData.mutateAsync({
@@ -393,7 +401,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
           <div style={boxStyle} onClick={stop}>
             <div style={headerStyle}>
               <div>
-                <div style={titleStyle}>Редагування оцінки (шаблон)</div>
+                <div style={titleStyle}>Редагування оцінки</div>
                 <div style={subStyle}>{entryTitle(entry)}</div>
               </div>
               <button type="button" onClick={closeModal} style={btnStyle}>
@@ -460,7 +468,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
           <div style={boxStyle} onClick={stop}>
             <div style={headerStyle}>
               <div>
-                <div style={titleStyle}>Додати оцінку (шаблон)</div>
+                <div style={titleStyle}>Додати оцінку</div>
                 <div style={subStyle}>Новий запис у журнал</div>
               </div>
               <button type="button" onClick={closeModal} style={btnStyle}>
@@ -684,7 +692,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
                       className="journal-subject-card"
                       role="button"
                       tabIndex={0}
-                      title="Натисніть, щоб редагувати/видалити (шаблон)"
+                      title="Натисніть, щоб редагувати/видалити"
                       onClick={() => openActions(mainItem)}
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") openActions(mainItem);
@@ -731,7 +739,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
                                 e.stopPropagation();
                                 openActions(mi);
                               }}
-                              title="Натисніть, щоб редагувати/видалити (шаблон)"
+                              title="Натисніть, щоб редагувати/видалити"
                               style={{
                                 padding: "6px 8px",
                                 borderRadius: 6,
@@ -759,7 +767,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
                               className="subject-card"
                               role="button"
                               tabIndex={0}
-                              title="Натисніть, щоб редагувати/видалити (шаблон)"
+                              title="Натисніть, щоб редагувати/видалити"
                               onClick={() => openActions(o.items[0])}
                               onKeyDown={(e) => {
                                 if (e.key === "Enter" || e.key === " ") openActions(o.items[0]);

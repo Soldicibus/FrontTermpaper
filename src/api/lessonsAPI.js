@@ -11,6 +11,12 @@ export const getLessonById = async (id) => {
   return data.lesson;
 };
 
+export const getLessonsByTeacher = async (teacherId) => {
+  const request = await api.get(`/lessons/teacher/${teacherId}`);
+  const data = request.data;
+  return data.lessons;
+};
+
 export const getLessonByName = async (name) => {
   let decoded = name;
   try {

@@ -1,5 +1,22 @@
 import api from "./lib/api.js";
 
+function sanitizePayload(obj) {
+  const out = {};
+  if (!obj || typeof obj !== 'object') return out;
+  Object.keys(obj).forEach((k) => {
+    const v = obj[k];
+    // treat empty string and undefined as explicit NULL for server-side
+    if (v === '') {
+      out[k] = null;
+    } else if (v === undefined) {
+      // skip undefined entirely so it's not sent
+    } else {
+      out[k] = v;
+    }
+  });
+  return out;
+}
+
 export const getAllStudents = async () => {
   const request = await api.get("/students");
 
@@ -75,13 +92,8 @@ export const createStudent = async ({
   phone,
   class_c,
 }) => {
-  const request = await api.post("/students", {
-    name,
-    surname,
-    patronym,
-    phone,
-    class_c,
-  });
+  const body = sanitizePayload({ name, surname, patronym, phone, class_c });
+  const request = await api.post("/students", body);
 
   return request;
 };
@@ -94,13 +106,8 @@ export const patchStudent = async ({
   phone,
   class_c,
 }) => {
-  const request = await api.patch(`/students/${id}`, {
-    name,
-    surname,
-    patronym,
-    phone,
-    class_c,
-  });
+  const body = sanitizePayload({ id, name, surname, patronym, phone, class_c });
+  const request = await api.patch(`/students/${id}`, body);
 
   return request;
 };

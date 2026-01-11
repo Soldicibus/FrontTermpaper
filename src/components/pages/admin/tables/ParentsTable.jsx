@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
 import DataTable from '../../../common/DataTable';
+import { useStudents } from '../../../../hooks/students/queries/useStudents';
+import { useAssignParentToStudent } from '../../../../hooks/studentparents/mutations/useAssignParentToStudent';
 import { useParents } from '../../../../hooks/parents/queries/useParents';
 import { useCreateParent } from '../../../../hooks/parents/mutations/useCreateParent';
 import { useUpdateParent } from '../../../../hooks/parents/mutations/useUpdateParent';
 import { useDeleteParent } from '../../../../hooks/parents/mutations/useDeleteParent';
 import { useAdminPermissions } from '../../../../hooks/useAdminPermissions';
 import Modal from '../../../common/Modal';
-import { useStudents } from '../../../../hooks/students/queries/useStudents';
-import { useAssignParentToStudent } from '../../../../hooks/studentparents/mutations/useAssignParentToStudent';
+import ErrorModal from '../../../common/ErrorModal';
+
+const formatPhoneInput = (val) => {
+  if (!val) return '';
+  const digits = val.replace(/\D/g, '').slice(0, 10);
+  if (digits.length < 4) return digits;
+  if (digits.length < 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+};
 
 export default function ParentsTable() {
   const { data: parents, isLoading } = useParents();
   const { permissions } = useAdminPermissions();
+
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const createMutation = useCreateParent();
   const updateMutation = useUpdateParent();
@@ -33,7 +44,7 @@ export default function ParentsTable() {
       name: item.parent_name || '',
       surname: item.parent_surname || '',
       patronym: item.parent_patronym || '',
-      phone: item.parent_phone || ''
+      phone: formatPhoneInput(item.parent_phone || ''),
     });
     setIsModalOpen(true);
   };
@@ -43,7 +54,7 @@ export default function ParentsTable() {
       try {
         await deleteMutation.mutateAsync(item.parent_id);
       } catch (error) {
-        alert('Error deleting parent: ' + error.message);
+        setErrorMessage('Error deleting parent: ' + error.message);
       }
     }
   };
@@ -56,18 +67,23 @@ export default function ParentsTable() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const payload = {
+      ...formData,
+      patronym: formData.patronym || null,
+      phone: formData.phone || null,
+    };
     try {
       if (editingParent) {
         await updateMutation.mutateAsync({
           id: editingParent.parent_id,
-          ...formData
+          ...payload
         });
       } else {
-        await createMutation.mutateAsync(formData);
+        await createMutation.mutateAsync(payload);
       }
       setIsModalOpen(false);
     } catch (error) {
-      alert('Error: ' + error.message);
+      setErrorMessage('Error: ' + error.message);
     }
   };
 
@@ -102,6 +118,11 @@ export default function ParentsTable() {
         canEdit={permissions.parents.edit}
         canDelete={permissions.parents.delete}
         canCreate={permissions.parents.create}
+      />
+      
+      <ErrorModal 
+        error={errorMessage} 
+        onClose={() => setErrorMessage(null)} 
       />
 
       <Modal
@@ -144,8 +165,12 @@ export default function ParentsTable() {
             <input
               type="text"
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, phone: formatPhoneInput(e.target.value) })}
+              placeholder="0xx-xxx-xxxx"
+              pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+              maxLength="12"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
+              required
             />
           </div>
           <div className="flex justify-end space-x-3 pt-4">
@@ -178,7 +203,7 @@ export default function ParentsTable() {
               await assignMutation.mutateAsync({ studentId: assignData.studentId, parentId: assignData.parentId });
               setIsAssignModalOpen(false);
             } catch (err) {
-              alert('Error assigning student: ' + (err.message || err));
+              setErrorMessage('Error assigning student: ' + (err.message || err));
             }
           }}
           className="space-y-4"

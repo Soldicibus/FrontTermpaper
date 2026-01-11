@@ -9,6 +9,15 @@ import { useParents } from '../../../../hooks/parents/queries/useParents';
 import { useAssignParentToStudent } from '../../../../hooks/studentparents/mutations/useAssignParentToStudent';
 import { useAdminPermissions } from '../../../../hooks/useAdminPermissions';
 import Modal from '../../../common/Modal';
+import ErrorModal from '../../../common/ErrorModal';
+
+const formatPhoneInput = (val) => {
+  if (!val) return '';
+  const digits = val.replace(/\D/g, '').slice(0, 10);
+  if (digits.length < 4) return digits;
+  if (digits.length < 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+};
 
 export default function StudentsTable() {
   const { data: students, isLoading } = useStudents();
@@ -32,14 +41,16 @@ export default function StudentsTable() {
   const { data: parents } = useParents();
   const assignMutation = useAssignParentToStudent();
 
+  const [errorMessage, setErrorMessage] = useState(null);
+
   const handleEdit = (item) => {
     setEditingStudent(item);
     setFormData({
       name: item.student_name || '',
       surname: item.student_surname || '',
       patronym: item.student_patronym || '',
-      phone: item.student_phone || '',
-      class_c: item.class_name || '' 
+      phone: formatPhoneInput(item.student_phone || ''),
+      class_c: item.student_class || item.class || item.class_name || ''
     });
     setIsModalOpen(true);
   };
@@ -49,7 +60,7 @@ export default function StudentsTable() {
       try {
         await deleteMutation.mutateAsync(item.student_id);
       } catch (error) {
-        alert('Error deleting student: ' + error.message);
+        setErrorMessage('Error deleting student: ' + error.message);
       }
     }
   };
@@ -71,7 +82,7 @@ export default function StudentsTable() {
       await assignMutation.mutateAsync({ studentId: assignData.studentId, parentId: assignData.parentId });
       setIsAssignModalOpen(false);
     } catch (error) {
-      alert('Error assigning parent: ' + error.message);
+      setErrorMessage('Error assigning parent: ' + error.message);
     }
   };
 
@@ -81,9 +92,9 @@ export default function StudentsTable() {
       const payload = {
         name: formData.name,
         surname: formData.surname,
-        patronym: formData.patronym,
+        patronym: formData.patronym || null,
         phone: formData.phone,
-        class_c: formData.class_c
+        class_c: formData.class_c || null
       };
 
       if (editingStudent) {
@@ -96,7 +107,7 @@ export default function StudentsTable() {
       }
       setIsModalOpen(false);
     } catch (error) {
-      alert('Error: ' + error.message);
+      setErrorMessage('Error: ' + error.message);
     }
   };
 
@@ -126,6 +137,11 @@ export default function StudentsTable() {
         canEdit={permissions.students.edit}
         canDelete={permissions.students.delete}
         canCreate={permissions.students.create}
+      />
+      
+      <ErrorModal 
+        error={errorMessage} 
+        onClose={() => setErrorMessage(null)} 
       />
 
       <Modal
@@ -161,7 +177,6 @@ export default function StudentsTable() {
               value={formData.patronym}
               onChange={(e) => setFormData({ ...formData, patronym: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
-              required
             />
           </div>
           <div>
@@ -169,7 +184,10 @@ export default function StudentsTable() {
             <input
               type="text"
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, phone: formatPhoneInput(e.target.value) })}
+              placeholder="0xx-xxx-xxxx"
+              pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+              maxLength="12"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
               required
             />
@@ -180,7 +198,6 @@ export default function StudentsTable() {
               value={formData.class_c}
               onChange={(e) => setFormData({ ...formData, class_c: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
-              required
             >
               <option value="">Select Class</option>
               {classes?.map((c) => (

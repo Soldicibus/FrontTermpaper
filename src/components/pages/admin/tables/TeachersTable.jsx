@@ -7,12 +7,23 @@ import { useDeleteTeacher } from '../../../../hooks/teachers/mutations/useDelete
 import { useUsers } from '../../../../hooks/users/queries/useUsers';
 import { useAdminPermissions } from '../../../../hooks/useAdminPermissions';
 import Modal from '../../../common/Modal';
+import ErrorModal from '../../../common/ErrorModal';
+
+const formatPhoneInput = (val) => {
+  if (!val) return '';
+  const digits = val.replace(/\D/g, '').slice(0, 10);
+  if (digits.length < 4) return digits;
+  if (digits.length < 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+};
 
 export default function TeachersTable() {
   const { data: teachers, isLoading } = useTeachers();
   const { data: users } = useUsers();
   const { permissions } = useAdminPermissions();
   
+  const [errorMessage, setErrorMessage] = useState(null);
+
   const createMutation = useCreateTeacher();
   const updateMutation = useUpdateTeacher();
   const deleteMutation = useDeleteTeacher();
@@ -32,7 +43,7 @@ export default function TeachersTable() {
       name: item.teacher_name,
       surname: item.teacher_surname,
       patronym: item.teacher_patronym,
-      phone: item.teacher_phone,
+      phone: formatPhoneInput(item.teacher_phone || ''),
     });
     setIsModalOpen(true);
   };
@@ -43,7 +54,7 @@ export default function TeachersTable() {
         await deleteMutation.mutateAsync(item.teacher_id);
       } catch (error) {
         console.error('Failed to delete teacher:', error);
-        alert('Failed to delete teacher');
+        setErrorMessage('Failed to delete teacher: ' + (error.message || error));
       }
     }
   };
@@ -65,7 +76,7 @@ export default function TeachersTable() {
       name: formData.name,
       surname: formData.surname,
       patronym: formData.patronym || null,
-      phone: formData.phone || null,
+      phone: formData.phone, // Phone is NOT NULL
     };
 
     try {
@@ -80,7 +91,7 @@ export default function TeachersTable() {
       setIsModalOpen(false);
     } catch (error) {
       console.error('Failed to save teacher:', error);
-      alert('Failed to save teacher');
+      setErrorMessage('Failed to save teacher: ' + (error.message || error));
     }
   };
 
@@ -107,6 +118,8 @@ export default function TeachersTable() {
         canDelete={permissions.teachers.delete}
         canCreate={permissions.teachers.create}
       />
+      
+      <ErrorModal error={errorMessage} onClose={() => setErrorMessage(null)} />
 
       <Modal
         isOpen={isModalOpen}
@@ -148,8 +161,12 @@ export default function TeachersTable() {
             <input
               type="text"
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+              onChange={(e) => setFormData({ ...formData, phone: formatPhoneInput(e.target.value) })}
+              placeholder="0xx-xxx-xxxx"
+              pattern="[0-9]{3}-[0-9]{3}-[0-9]{4}"
+              maxLength="12"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
+              required
             />
           </div>
           <div className="flex justify-end space-x-3 pt-4">

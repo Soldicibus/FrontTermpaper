@@ -5,23 +5,25 @@ import { useCreateSubject } from '../../../../hooks/subjects/mutations/useCreate
 import { useDeleteSubject } from '../../../../hooks/subjects/mutations/useDeleteSubject';
 import { useAdminPermissions } from '../../../../hooks/useAdminPermissions';
 import Modal from '../../../common/Modal';
+import ErrorModal from '../../../common/ErrorModal';
 
 export default function SubjectsTable() {
   const { data: subjects, isLoading } = useSubjects();
   const { permissions } = useAdminPermissions();
 
-  const createMutation = useCreateSubject();
-  const deleteMutation = useDeleteSubject();
-
+  const [errorMessage, setErrorMessage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [formData, setFormData] = useState({ name: '', program: '' });
+
+  const createMutation = useCreateSubject();
+  const deleteMutation = useDeleteSubject();
 
   const handleDelete = async (item) => {
     if (window.confirm(`Delete subject ${item.subject_name}?`)) {
       try {
         await deleteMutation.mutateAsync(item.subject_id);
       } catch (error) {
-        alert('Error deleting subject: ' + error.message);
+        setErrorMessage('Error deleting subject: ' + error.message);
       }
     }
   };
@@ -34,10 +36,14 @@ export default function SubjectsTable() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await createMutation.mutateAsync(formData);
+      const payload = {
+        name: formData.name,
+        program: formData.program || null // Send null if empty
+      };
+      await createMutation.mutateAsync(payload);
       setIsModalOpen(false);
     } catch (error) {
-      alert('Error: ' + error.message);
+      setErrorMessage('Error: ' + error.message);
     }
   };
 
@@ -60,6 +66,8 @@ export default function SubjectsTable() {
         canDelete={permissions.others.delete}
         canCreate={permissions.others.create}
       />
+      
+      <ErrorModal error={errorMessage} onClose={() => setErrorMessage(null)} />
 
       <Modal
         isOpen={isModalOpen}

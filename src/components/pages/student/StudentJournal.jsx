@@ -137,10 +137,22 @@ function formatDateShort(value) {
   try {
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return String(value);
-    const dd = String(d.getDate()).padStart(2, '0');
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const yyyy = d.getFullYear();
-    return `${dd}-${mm}-${yyyy}`;
+
+    // Format using Europe/Kiev timezone
+    const formatter = new Intl.DateTimeFormat('uk-UA', {
+      timeZone: 'Europe/Kiev',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+    
+    // We want specifically dd-mm-yyyy to match the key format expected
+    // formatter.format(d) might give "dd.mm.yyyy", so let's use parts
+    const parts = formatter.formatToParts(d);
+    const day = parts.find(p => p.type === 'day').value;
+    const month = parts.find(p => p.type === 'month').value;
+    const year = parts.find(p => p.type === 'year').value;
+    return `${day}-${month}-${year}`;
   } catch (e) {
     return String(value);
   }
@@ -162,7 +174,11 @@ function formatTime(value) {
   try {
     const d = new Date(value);
     if (Number.isNaN(d.getTime())) return '';
-    return d.toLocaleTimeString('uk-UA', { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString('uk-UA', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      timeZone: 'Europe/Kiev'
+    });
   } catch (e) {
     return '';
   }

@@ -16,6 +16,12 @@ import { useUserData } from "../../../hooks/users/queries/useUserData";
 import { useHomeworkById } from "../../../hooks/homework/queries/useHomeworkById";
 import { getCurrentUser } from "../../../utils/auth";
 import ClassAbsentTab from "../common/ClassAbsentTab";
+import ErrorModal from '../../common/ErrorModal';
+import { useLessonsByTeacher } from "../../../hooks/lessons/queries/useLessonByTeacher";
+import { useUpdateLesson } from "../../../hooks/lessons/mutations/useUpdateLesson";
+import { useDeleteLesson } from "../../../hooks/lessons/mutations/useDeleteLesson";
+import Modal from "../../common/Modal";
+import DataTable from "../../common/DataTable";
 
 export default function TeacherClassView({ className: classNameProp, onBack }) {
   const navigate = useNavigate();
@@ -33,6 +39,8 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
       return String(rawClassName);
     }
   }, [rawClassName]);
+
+  const [errorMessage, setErrorMessage] = useState(null);
 
   const [tab, setTab] = useState("view"); // view | homework | schedule | absent
 
@@ -62,7 +70,87 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
   const updateHomework = useUpdateHomework();
   const deleteHomework = useDeleteHomework();
   const createLesson = useCreateLesson();
+  const updateLesson = useUpdateLesson();
+  const deleteLesson = useDeleteLesson();
+  
+  const { data: teacherLessons, isLoading: lessonsLoading } = useLessonsByTeacher(teacherId);
 
+  const [lessonModalOpen, setLessonModalOpen] = useState(false);
+  const [editingLesson, setEditingLesson] = useState(null);
+  const [lessonForm, setLessonForm] = useState({
+    name: "",
+    subjectId: "",
+    materialId: "",
+    date: "",
+  });
+
+  const handleCreateLesson = () => {
+    setEditingLesson(null);
+    setLessonForm({
+      name: "",
+      subjectId: "",
+      materialId: "",
+      date: new Date().toISOString().slice(0, 16),
+    });
+    setLessonModalOpen(true);
+  };
+
+  const handleEditLesson = (lesson) => {
+    setEditingLesson(lesson);
+    let formattedDate = "";
+    if (lesson.lesson_date) {
+        const d = new Date(lesson.lesson_date);
+        formattedDate = d.getFullYear() + '-' +
+          String(d.getMonth() + 1).padStart(2, '0') + '-' +
+          String(d.getDate()).padStart(2, '0') + 'T' +
+          String(d.getHours()).padStart(2, '0') + ':' +
+          String(d.getMinutes()).padStart(2, '0');
+    }
+    setLessonForm({
+      name: lesson.lesson_name || "",
+      subjectId: lesson.lesson_subject || "",
+      materialId: lesson.lesson_material || "",
+      date: formattedDate,
+    });
+    setLessonModalOpen(true);
+  };
+
+  const handleDeleteLesson = async (lesson) => {
+    if (window.confirm(`Delete lesson ${lesson.lesson_name}?`)) {
+      try {
+        await deleteLesson.mutateAsync(lesson.lesson_id);
+      } catch (err) {
+        setErrorMessage("Error deleting lesson: " + err.message);
+      }
+    }
+  };
+
+  const handleLessonSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        name: lessonForm.name || null,
+        className: className, // autofilled from context
+        subjectId: lessonForm.subjectId,
+        materialId: lessonForm.materialId || null,
+        teacherId: teacherId, // autofilled from context
+        date: lessonForm.date,
+      };
+
+      if (editingLesson) {
+        await updateLesson.mutateAsync({
+          id: editingLesson.lesson_id,
+          ...payload
+        });
+      } else {
+        await createLesson.mutateAsync(payload);
+      }
+      setLessonModalOpen(false);
+    } catch (err) {
+      setErrorMessage("Error: " + err.message);
+    }
+  };
+  
   const { data: subjects } = useSubjects();
   const { data: materials } = useMaterials();
 
@@ -202,6 +290,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
       borderRadius: 10,
       background: "#ff0000ff",
       border: "1px solid #e6e6e6",
+      color: "#000000",
       cursor: "pointer",
       fontWeight: 700,
     };
@@ -243,29 +332,29 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
         } else {
           // Existing lesson
           if (!searchedLesson) {
-            alert("Lesson not found! Please search and select a valid lesson.");
+            setErrorMessage("Lesson not found! Please search and select a valid lesson.");
             return;
           }
           lessonId = searchedLesson.id || searchedLesson.lesson_id;
         }
 
         if (!lessonId) {
-          alert("Could not determine Lesson ID.");
+          setErrorMessage("Could not determine Lesson ID.");
           return;
         }
 
         await createHomework.mutateAsync({
-          name: hwForm.name,
+          name: hwForm.name || null,
           teacherId: teacherId,
           lessonId: lessonId,
-          dueDate: hwForm.due,
-          description: hwForm.desc,
+          dueDate: hwForm.due || null,
+          description: hwForm.desc || null,
           className: className,
         });
         closeModal();
       } catch (err) {
         console.error(err);
-        alert("Error creating homework: " + err.message);
+        setErrorMessage("Error creating homework: " + err.message);
       }
     };
 
@@ -275,12 +364,12 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
         const hwId = hwModal.data?.homework_id;
         console.log("Updating homework - debug point 2, hwId:", hwId);
         if (!hwId) {
-          alert("Error: Homework ID is missing.");
+          setErrorMessage("Error: Homework ID is missing.");
           return;
         }
 
         if (!teacherId) {
-          alert("Error: Teacher ID is missing. Please wait for user data to load.");
+          setErrorMessage("Error: Teacher ID is missing. Please wait for user data to load.");
           return;
         }
 
@@ -296,7 +385,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
         }
 
         if (!originalLessonId) {
-          alert("Error: Lesson ID is missing on the selected homework. Cannot update.");
+          setErrorMessage("Error: Lesson ID is missing on the selected homework. Cannot update.");
           return;
         }
 
@@ -312,17 +401,17 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
 
         await updateHomework.mutateAsync({
           id: hwId,
-          name: hwForm.name,
+          name: hwForm.name || null,
           teacherId: teacherId,
           lessonId: originalLessonId, 
-          dueDate: hwForm.due,
-          description: hwForm.desc,
+          dueDate: hwForm.due || null,
+          description: hwForm.desc || null,
           className: className,
         });
         closeModal();
       } catch (err) {
         console.error(err);
-        alert("Error updating homework: " + err.message);
+        setErrorMessage("Error updating homework: " + err.message);
       }
     };
 
@@ -335,7 +424,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
         closeModal();
       } catch (err) {
         console.error(err);
-        alert("Error deleting homework: " + err.message);
+        setErrorMessage("Error deleting homework: " + err.message);
       }
     };
 
@@ -602,7 +691,123 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
           >
             Відсутність
           </button>
+          <button
+            onClick={() => setTab("lessons")}
+            className={tab === "lessons" ? "active" : ""}
+          >
+            Уроки
+          </button>
         </div>
+      )}
+
+      {tab === "lessons" && (
+        <section className="card">
+          <DataTable
+            title={`Уроки для ${className}`}
+            data={teacherLessons?.filter((l) => l.lesson_class === className) || []}
+            columns={[
+              { header: "ID", accessor: "lesson_id" },
+              { header: "Назва", accessor: "lesson_name" },
+              { 
+                header: "Дата", 
+                accessor: "lesson_date",
+                render: (row) => {
+                    if (!row.lesson_date) return '';
+                    return new Date(row.lesson_date).toLocaleString('uk-UA', { 
+                     year: 'numeric', 
+                     month: '2-digit', 
+                     day: '2-digit', 
+                     hour: '2-digit', 
+                     minute: '2-digit',
+                     timeZone: 'Europe/Kiev'
+                    });
+                  }
+              },
+              { header: "Предмет ID", accessor: "lesson_subject" },
+            ]}
+            isLoading={lessonsLoading}
+            onCreate={handleCreateLesson}
+            onEdit={handleEditLesson}
+            onDelete={handleDeleteLesson}
+            canCreate={true}
+            canEdit={true}
+            canDelete={true}
+          />
+          
+          <Modal
+            isOpen={lessonModalOpen}
+            onClose={() => setLessonModalOpen(false)}
+            title={editingLesson ? "Редагувати урок" : "Створити урок"}
+          >
+            <form onSubmit={handleLessonSubmit} className="space-y-4" style={{ display: 'grid', gap: '1rem' }}>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Назва уроку</label>
+                <input
+                  type="text"
+                  value={lessonForm.name}
+                  onChange={(e) => setLessonForm({ ...lessonForm, name: e.target.value })}
+                  style={{ padding: 8, borderRadius: 8, border: "1px solid #ccc", width: "100%" }}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Дата</label>
+                <input
+                  type="datetime-local"
+                  value={lessonForm.date}
+                  onChange={(e) => setLessonForm({ ...lessonForm, date: e.target.value })}
+                  style={{ padding: 8, borderRadius: 8, border: "1px solid #ccc", width: "100%" }}
+                  required
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Предмет</label>
+                <select
+                  value={lessonForm.subjectId}
+                  onChange={(e) => setLessonForm({ ...lessonForm, subjectId: e.target.value })}
+                  style={{ padding: 8, borderRadius: 8, border: "1px solid #ccc", width: "100%" }}
+                  required
+                >
+                  <option value="">Оберіть предмет</option>
+                  {subjects?.map((s) => (
+                    <option key={s.subject_id} value={s.subject_id}>
+                      {s.subject_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Матеріал</label>
+                <select
+                  value={lessonForm.materialId}
+                  onChange={(e) => setLessonForm({ ...lessonForm, materialId: e.target.value })}
+                  style={{ padding: 8, borderRadius: 8, border: "1px solid #ccc", width: "100%" }}
+                >
+                  <option value="">Оберіть матеріал (необов'язково)</option>
+                  {materials?.map((m) => (
+                    <option key={m.material_id} value={m.material_id}>
+                      {m.material_name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-end space-x-3 pt-4" style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+                <button
+                  type="button"
+                  onClick={() => setLessonModalOpen(false)}
+                  style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #ccc", background: "black" }}
+                >
+                  Скасувати
+                </button>
+                <button
+                  type="submit"
+                  style={{ padding: "8px 12px", borderRadius: 8, border: "none", background: "#4f46e5", color: "white" }}
+                >
+                  {editingLesson ? "Зберегти" : "Створити"}
+                </button>
+              </div>
+            </form>
+          </Modal>
+        </section>
       )}
 
       {tab === "absent" && <ClassAbsentTab className={className} />}
@@ -680,7 +885,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
         </>
       )}
 
-      {tab === "schedule" && (
+      {tab === 'schedule' && (
         <section className="card">
           <h2>Розклад</h2>
           {anyStudentId ? (
@@ -696,6 +901,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
       {tab === "homework" && (
         <section className="card">
           {renderHwModal()}
+          <ErrorModal error={errorMessage} onClose={() => setErrorMessage(null)} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
             <h2 style={{ margin: 0 }}>Домашні</h2>
             <div style={{ display: "flex", gap: 8 }}>
@@ -716,6 +922,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
           )}
         </section>
       )}
+
     </main>
   );
 }
