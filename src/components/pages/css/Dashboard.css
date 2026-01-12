@@ -182,8 +182,11 @@
 }
 
 /* Journal layout improvements */
-.journal-card {
+.card.journal-card {
   padding: 16px;
+  /* Adjust margins to prevent being stretched out and avoid sidebar overlap */
+  margin-left: 65vw;
+  width: 40%;
 }
 .journal-by-date {
   display: flex;

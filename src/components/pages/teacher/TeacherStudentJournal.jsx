@@ -510,9 +510,9 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
 
               {/* Lesson Selection */}
               <div style={{ border: "1px solid #eee", padding: 10, borderRadius: 10 }}>
-                <div style={{ fontWeight: 700, marginBottom: 8 }}>Урок</div>
-                <div style={{ display: "flex", gap: 12, marginBottom: 10 }}>
-                  <label style={{ display: "flex", gap: 6, alignItems: "center", cursor: "pointer" }}>
+                <div style={{ fontWeight: "700", marginBottom: "8px" }}>Урок</div>
+                <div style={{ display: "flex", gap: "12px", marginBottom: "10px" }}>
+                  <label style={{ display: "flex", gap: "6px", alignItems: "center", cursor: "pointer" }}>
                     <input 
                       type="radio" 
                       name="lessonMode" 
@@ -521,7 +521,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
                     />
                     Існуючий урок
                   </label>
-                  <label style={{ display: "flex", gap: 6, alignItems: "center", cursor: "pointer" }}>
+                  <label style={{ display: "flex", gap: "6px", alignItems: "center", cursor: "pointer" }}>
                     <input 
                       type="radio" 
                       name="lessonMode" 
@@ -562,7 +562,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
                       />
                     </label>
                     <label style={{ display: "grid", gap: 4 }}>
-                      <div style={{ fontSize: 13 }}>Предмет</div>
+                      <div style={{ fontSize: 13, color: "rgba(0, 0, 0, 0.8)" }}>Предмет</div>
                       <select 
                         value={form.newLessonSubject}
                         onChange={e => setForm({...form, newLessonSubject: e.target.value})}
@@ -626,6 +626,7 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
   };
 
   return (
+    <>
     <div className="card journal-card">
       {renderModal()}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12 }}>
@@ -859,8 +860,8 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
           );
         })()}
       </div>
-
-      <MonthlyGradesGrid studentId={studentId} isEditable={true} />
     </div>
+    <MonthlyGradesGrid studentId={studentId} />
+    </>
   );
 }
