@@ -58,7 +58,7 @@ export default function MonthlyGradesGrid({ studentId }) {
   if (!studentId) return null;
 
   return (
-    <div className="card" style={{ marginTop: 20 }}>
+    <div className="card section-card" style={{ marginTop: 20 }}>
       {/* Define custom scrollbar styles locally */}
       <style>{`
         .custom-scrollbar::-webkit-scrollbar {
@@ -133,11 +133,13 @@ export default function MonthlyGradesGrid({ studentId }) {
                                                         fontWeight: 'bold', 
                                                         display: 'inline-block',
                                                         margin: '0 2px',
-                                                        fontSize: '14px'
+                                                        fontSize: '14px',
+                                                        borderBottom: item.note ? '2px dotted #999' : 'none',
+                                                        cursor: item.note ? 'help' : 'default'
                                                     }}
                                                     title={item.note || undefined}
                                                 >
-                                                    {item.mark}
+                                                    {item.mark != null ? item.mark : (item.status === 'Н' ? 'Н' : (item.status === 'П' ? 'П' : ''))}
                                                 </div>
                                             );
                                         })}

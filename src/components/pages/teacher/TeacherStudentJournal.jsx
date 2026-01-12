@@ -639,14 +639,12 @@ export default function TeacherStudentJournal({ studentId, studentName, onBack }
             <h2 style={{ margin: 0 }}>Журнал учня {showDetails ? "▲" : "▼"}</h2>
             <div style={{ opacity: 0.8 }}>{studentName ? studentName : studentId ? `ID: ${studentId}` : ""}</div>
           </div>
-          {/* Quick info preview */}
           {!showDetails && student && (
              <div style={{ fontSize: 13, color: "#ffffffff", marginTop: 4, display: "flex", gap: 12, flexWrap: "wrap" }}>
                  {student.email && <span>📧 {student.email}</span>}
                  {(student.student_phone || student.phone) && <span>📞 {student.student_phone || student.phone}</span>}
              </div>
           )}
-          {/* Expanded details */}
           {showDetails && (
             <div style={{ marginTop: 8, padding: 10, border: "1px solid #eee", borderRadius: 8, background: "#f8f9fa1f" }}>
                 <div style={{ fontWeight: "bold", marginBottom: 6 }}>Контактна інформація учня</div>

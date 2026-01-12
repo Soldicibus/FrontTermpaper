@@ -185,8 +185,7 @@
 .card.journal-card {
   padding: 16px;
   /* Adjust margins to prevent being stretched out and avoid sidebar overlap */
-  margin-left: 65vw;
-  width: 40%;
+  max-width: 85vw;
 }
 .journal-by-date {
   display: flex;

@@ -814,7 +814,6 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
 
       {tab === "view" && (
         <>
-          <section className="card">
             {selectedStudent ? (
               <TeacherStudentJournal
                 studentId={selectedStudent.id}
@@ -824,7 +823,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
                 onBack={() => setSelectedStudent(null)}
               />
             ) : (
-              <>
+              <section className="card">
                 <h2>Учні</h2>
 
                 {isLoading && <div>Завантаження списку учнів...</div>}
@@ -879,9 +878,8 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
                     </div>
                   )}
                 </div>
-              </>
+              </section>
             )}
-          </section>
         </>
       )}
 
