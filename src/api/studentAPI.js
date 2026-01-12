@@ -105,6 +105,27 @@ export const createStudent = async ({
   return request;
 };
 
+export const createStudentWithUser = async ({
+  name,
+  surname,
+  patronym,
+  phone,
+  class_c,
+  user_id,
+}) => {
+  const body = sanitizePayload({
+    name,
+    surname,
+    patronym,
+    phone,
+    class_c,
+    user_id,
+  });
+  const request = await api.post("/students/user", body);
+
+  return request;
+};
+
 export const patchStudent = async ({
   id,
   name,

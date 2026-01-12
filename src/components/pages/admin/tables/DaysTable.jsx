@@ -157,7 +157,7 @@ export default function DaysTable() {
               required
             >
               <option value="">Select Weekday</option>
-              {['Понеділок', 'Вівторок', 'Середа', 'Четвер', 'Пʼятниця', 'Субота', 'Неділя'].map(d => (
+              {['Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П’ятниця', 'Субота', 'Неділя'].map(d => (
                 <option key={d} value={d}>{d}</option>
               ))}
             </select>

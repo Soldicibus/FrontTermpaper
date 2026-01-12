@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useCreateStudentData } from "../../../hooks/studentdata/mutations/useCreateStudentData";
 import { useTeacherWithClassesName } from "../../../hooks/teachers/queries/useTeacherWithClassesName";
@@ -10,6 +10,7 @@ import { useUpdateHomework } from "../../../hooks/homework/mutations/useUpdateHo
 import { useDeleteHomework } from "../../../hooks/homework/mutations/useDeleteHomework";
 import { useCreateLesson } from "../../../hooks/lessons/mutations/useCreateLesson";
 import { useLessonName } from "../../../hooks/lessons/queries/useLessonName";
+import { useLessonsByTeacherAndName } from "../../../hooks/lessons/queries/useLessonsByTeacherAndName";
 import { useSubjects } from "../../../hooks/subjects/queries/useSubjects";
 import { useMaterials } from "../../../hooks/materials/queries/useMaterials";
 import { useUserData } from "../../../hooks/users/queries/useUserData";
@@ -156,7 +157,16 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
 
   // For "Existing Lesson" search
   const [lessonSearch, setLessonSearch] = useState("");
-  const { data: searchedLesson } = useLessonName(lessonSearch);
+  const [debouncedLessonSearch, setDebouncedLessonSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedLessonSearch(lessonSearch);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [lessonSearch]);
+
+  const { data: searchedLesson } = useLessonsByTeacherAndName(teacherId, debouncedLessonSearch);
 
   // Form state for the modal
   const [hwForm, setHwForm] = useState({
@@ -306,7 +316,7 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
       ...btnStyle,
       border: "1px solid #d5e7ff",
       background: "#f0f7ff",
-      color: "#179e12ff",
+      color: "#0047b3ff",
     };
 
     const stop = (e) => e.stopPropagation();
@@ -331,11 +341,12 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
           lessonId = resData?.lessonId || resData?.id || resData?.insertId;
         } else {
           // Existing lesson
-          if (!searchedLesson) {
+          if (!searchedLesson || searchedLesson.length === 0) {
             setErrorMessage("Lesson not found! Please search and select a valid lesson.");
             return;
           }
-          lessonId = searchedLesson.id || searchedLesson.lesson_id;
+          const lesson = searchedLesson[0];
+          lessonId = lesson.id || lesson.lesson_id;
         }
 
         if (!lessonId) {
@@ -507,8 +518,8 @@ export default function TeacherClassView({ className: classNameProp, onBack }) {
                       style={{ padding: 10, borderRadius: 10, border: "1px solid #e6e6e6" }} 
                     />
                     {lessonSearch && (
-                      <div style={{ fontSize: 12, color: searchedLesson ? "green" : "red" }}>
-                        {searchedLesson ? `Знайдено ID: ${searchedLesson.id || searchedLesson.lesson_id}` : "Не знайдено"}
+                      <div style={{ fontSize: 12, color: searchedLesson && searchedLesson.length > 0 ? "green" : "red" }}>
+                        {searchedLesson && searchedLesson.length > 0 ? `Знайдено ID: ${searchedLesson[0].id || searchedLesson[0].lesson_id}` : "Не знайдено"}
                       </div>
                     )}
                   </label>

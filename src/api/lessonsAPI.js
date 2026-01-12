@@ -30,6 +30,19 @@ export const getLessonByName = async (name) => {
   return data.lesson;
 };
 
+export const getLessonsByTeacherAndName = async (teacherId, name) => {
+  let decoded = name;
+  try {
+    decoded = decodeURIComponent(name);
+  } catch {
+    decoded = name;
+  }
+  const safeSegment = encodeURIComponent(decoded);
+  const request = await api.get(`/lessons/teacher/${teacherId}/name/${safeSegment}`);
+  const data = request.data;
+  return data.lessons;
+};
+
 export const createLesson = async ({
   name,
   className,

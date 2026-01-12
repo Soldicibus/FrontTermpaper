@@ -5,6 +5,7 @@ import { getCurrentUser } from "../../../utils/auth";
 import StudentSchedule from "../student/StudentSchedule";
 import StudentGradesAndAbsences from "../student/StudentGradesAndAbsences";
 import StudentJournal from "../student/StudentJournal";
+import ParentTeacherContact from "./ParentTeacherContact";
 
 export default function ParentOverview() {
   const currentUser = getCurrentUser();

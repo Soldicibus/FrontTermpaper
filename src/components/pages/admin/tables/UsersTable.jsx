@@ -24,7 +24,7 @@ const ROLE_MAP = {
 export default function UsersTable() {
   const { data: usersData, isLoading: usersLoading } = useUsers();
   const { data: userRolesData, isLoading: rolesLoading } = useUserRoles();
-  const { permissions } = useAdminPermissions();
+  const { permissions, isSAdmin } = useAdminPermissions();
   
   const createMutation = useCreateUser();
   const updateMutation = useUpdateUser();
@@ -39,6 +39,7 @@ export default function UsersTable() {
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
+  const [isGlobalRoleMode, setIsGlobalRoleMode] = useState(false);
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -105,24 +106,29 @@ export default function UsersTable() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      if (!editingUser && !formData.password) {
+        setErrorMessage('Password is required for new users');
+        return;
+      }
+      
       const dataToSubmit = {
         username: formData.username,
         email: formData.email,
-        password: formData.password
+        password: formData.password || null
       };
 
       if (editingUser) {
-        // If password is empty during update, we might need to handle it.
-        // But based on backend, it seems to require password.
-        // I'll warn if password is empty for update.
-        if (!formData.password) {
-            setErrorMessage("Password is required for update (backend limitation).");
-            return;
+        // If password is provided, it will be updated. If empty, it will remain unchanged.
+        const dataToUpdate = {
+            id: editingUser.user_id,
+            ...dataToSubmit
+        };
+        // Explicitly undefined or empty string will be handled by backend to ignore password update if we pass null/empty
+        if (!dataToSubmit.password) {
+            dataToUpdate.password = null;
         }
-        await updateMutation.mutateAsync({
-          id: editingUser.user_id,
-          ...dataToSubmit
-        });
+
+        await updateMutation.mutateAsync(dataToUpdate);
       } else {
         await createMutation.mutateAsync(dataToSubmit);
       }
@@ -135,6 +141,14 @@ export default function UsersTable() {
 
   const handleManageRoles = (item) => {
     setEditingUser(item);
+    setIsGlobalRoleMode(false);
+    setRoleFormData({ roleId: '' });
+    setIsRoleModalOpen(true);
+  };
+
+  const handleGlobalManageRoles = () => {
+    setEditingUser(null);
+    setIsGlobalRoleMode(true);
     setRoleFormData({ roleId: '' });
     setIsRoleModalOpen(true);
   };
@@ -241,6 +255,16 @@ export default function UsersTable() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onCreate={handleCreate}
+        extraAction={
+          isSAdmin && (
+            <button
+              onClick={handleGlobalManageRoles}
+              className="ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none"
+            >
+              Manage Roles
+            </button>
+          )
+        }
         canEdit={false} // Custom actions column handles this
         canDelete={false} // Custom actions column handles this
         canCreate={permissions.users.create}
@@ -276,14 +300,13 @@ export default function UsersTable() {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700">
-              Password {editingUser && '(Required for update)'}
+              Password {editingUser && '(Leave empty to keep unchanged)'}
             </label>
             <input
               type="password"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-              required={!editingUser} // Required for create, and effectively for update too
             />
           </div>
           <div className="flex justify-end space-x-3 pt-4">
@@ -307,59 +330,85 @@ export default function UsersTable() {
       <Modal
         isOpen={isRoleModalOpen}
         onClose={() => setIsRoleModalOpen(false)}
-        title={`Manage Roles for ${editingUser?.username}`}
+        title={isGlobalRoleMode ? "Manage User Roles" : `Manage Roles for ${editingUser?.username}`}
       >
         <div className="space-y-4">
-          <div className="border-b pb-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-2">Current Roles</h4>
-            <div className="flex flex-wrap gap-2">
-              {userRoles
-                .filter(r => r.user_id === editingUser?.user_id)
-                .map(r => (
-                  <span key={r.role_id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {ROLE_MAP[r.role_id]}
-                    <button
-                      onClick={() => handleRemoveRole(r.role_id)}
-                      className="ml-1.5 text-blue-600 hover:text-blue-800"
-                    >
-                      ×
-                    </button>
-                  </span>
-                ))}
-            </div>
-          </div>
-
-          <form onSubmit={handleRoleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Add Role</label>
+          {isGlobalRoleMode && (
+            <div className="border-b pb-4">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Select User</label>
               <select
-                value={roleFormData.roleId}
-                onChange={(e) => setRoleFormData({ roleId: e.target.value })}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                required
+                value={editingUser?.user_id || ''}
+                onChange={(e) => {
+                  const uid = parseInt(e.target.value);
+                  const user = users.find(u => u.user_id === uid);
+                  setEditingUser(user || null);
+                }}
               >
-                <option value="">Select Role</option>
-                {Object.entries(ROLE_MAP).map(([id, name]) => (
-                  <option key={id} value={id}>{name}</option>
+                <option value="">-- Select a User --</option>
+                {users?.map(u => (
+                  <option key={u.user_id} value={u.user_id}>
+                    {u.username} ({u.email})
+                  </option>
                 ))}
               </select>
             </div>
-            <div className="flex justify-end space-x-3">
-              <button
-                type="button"
-                onClick={() => setIsRoleModalOpen(false)}
-                className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
-              >
-                Close
-              </button>
-              <button
-                type="submit"
-                className="rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
-              >
-                Add Role
-              </button>
-            </div>
-          </form>
+          )}
+
+          {(editingUser) && (
+            <>
+              <div className="border-b pb-4">
+                <h4 className="text-sm font-medium text-gray-700 mb-2">Current Roles: {editingUser.role_name}</h4>
+                <div className="flex flex-wrap gap-2">
+                  {userRoles
+                    .filter(r => r.user_id === editingUser?.user_id)
+                    .map(r => (
+                      <span key={r.role_id} className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        {ROLE_MAP[r.role_id]}
+                        <button
+                          onClick={() => handleRemoveRole(r.role_id)}
+                          className="ml-1.5 text-blue-600 hover:text-blue-800"
+                        >
+                          ×
+                        </button>
+                      </span>
+                    ))}
+                </div>
+              </div>
+
+              <form onSubmit={handleRoleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Add Role</label>
+                  <select
+                    value={roleFormData.roleId}
+                    onChange={(e) => setRoleFormData({ roleId: e.target.value })}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                    required
+                  >
+                    <option value="">Select Role</option>
+                    {Object.entries(ROLE_MAP).map(([id, name]) => (
+                      <option key={id} value={id}>{name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsRoleModalOpen(false)}
+                    className="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50"
+                  >
+                    Close
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700"
+                  >
+                    Add Role
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
         </div>
       </Modal>
 

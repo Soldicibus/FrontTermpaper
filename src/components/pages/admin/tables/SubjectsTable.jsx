@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import DataTable from '../../../common/DataTable';
 import { useSubjects } from '../../../../hooks/subjects/queries/useSubjects';
 import { useCreateSubject } from '../../../../hooks/subjects/mutations/useCreateSubject';
+import { useUpdateSubject } from '../../../../hooks/subjects/mutations/useUpdateSubject';
 import { useDeleteSubject } from '../../../../hooks/subjects/mutations/useDeleteSubject';
 import { useAdminPermissions } from '../../../../hooks/useAdminPermissions';
 import Modal from '../../../common/Modal';
@@ -13,9 +14,11 @@ export default function SubjectsTable() {
 
   const [errorMessage, setErrorMessage] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [formData, setFormData] = useState({ name: '', program: '' });
+  const [editingSubject, setEditingSubject] = useState(null);
+  const [formData, setFormData] = useState({ name: '', program: '', cabinet: '' });
 
   const createMutation = useCreateSubject();
+  const updateMutation = useUpdateSubject();
   const deleteMutation = useDeleteSubject();
 
   const handleDelete = async (item) => {
@@ -29,7 +32,14 @@ export default function SubjectsTable() {
   };
 
   const handleCreate = () => {
-    setFormData({ name: '', program: '' });
+    setEditingSubject(null);
+    setFormData({ name: '', program: '', cabinet: '' });
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (item) => {
+    setEditingSubject(item);
+    setFormData({ name: item.subject_name, program: item.subject_program || '', cabinet: item.cabinet || '' });
     setIsModalOpen(true);
   };
 
@@ -38,9 +48,18 @@ export default function SubjectsTable() {
     try {
       const payload = {
         name: formData.name,
-        program: formData.program || null // Send null if empty
+        program: formData.program || null,
+        cabinet: formData.cabinet || null
       };
-      await createMutation.mutateAsync(payload);
+      
+      if (editingSubject) {
+        await updateMutation.mutateAsync({
+          id: editingSubject.subject_id,
+          ...payload
+        });
+      } else {
+        await createMutation.mutateAsync(payload);
+      }
       setIsModalOpen(false);
     } catch (error) {
       setErrorMessage('Error: ' + error.message);
@@ -50,6 +69,7 @@ export default function SubjectsTable() {
   const columns = [
     { header: 'ID', accessor: 'subject_id' },
     { header: 'Name', accessor: 'subject_name' },
+    { header: 'Cabinet', accessor: 'cabinet' },
     { header: 'Program', accessor: 'subject_program' },
   ];
 
@@ -61,8 +81,9 @@ export default function SubjectsTable() {
         columns={columns}
         isLoading={isLoading}
         onDelete={handleDelete}
+        onEdit={handleEdit}
         onCreate={handleCreate}
-        canEdit={false}
+        canEdit={permissions.others.edit}
         canDelete={permissions.others.delete}
         canCreate={permissions.others.create}
       />
@@ -72,7 +93,7 @@ export default function SubjectsTable() {
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="Create Subject"
+        title={editingSubject ? 'Edit Subject' : 'Create Subject'}
       >
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -83,6 +104,15 @@ export default function SubjectsTable() {
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
               required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Cabinet</label>
+            <input
+              type="number"
+              value={formData.cabinet}
+              onChange={(e) => setFormData({ ...formData, cabinet: e.target.value })}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm text-gray-900"
             />
           </div>
           <div>
@@ -105,7 +135,7 @@ export default function SubjectsTable() {
               type="submit"
               className="rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
             >
-              Create
+              {editingSubject ? 'Update' : 'Create'}
             </button>
           </div>
         </form>
