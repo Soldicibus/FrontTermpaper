@@ -7,14 +7,14 @@ import StudentMaterials from "./StudentMaterials";
 import StudentGradesAndAbsences from "./StudentGradesAndAbsences";
 import StudentRanking from "./StudentRanking";
 import StudentPerformanceMatrix from "./StudentPerformanceMatrix";
-import { useStudents } from "../../../hooks/students/queries/useStudents";
+import { useStudentsM } from "../../../hooks/students/queries/useStudentsM";
 import { useStudent } from "../../../hooks/students/queries/useStudent";
 import { useUserData } from "../../../hooks/users/queries/useUserData";
 import { getCurrentUser } from "../../../utils/auth";
 
 export default function StudentDashboard() {
   const [tab, setTab] = useState("journal");
-  const { data: students, isLoading: studentsLoading } = useStudents();
+  const { data: students, isLoading: studentsLoading } = useStudentsM();
   // Derive user id from token and fetch user profile to obtain linked student id
   const currentUser = getCurrentUser();
   const userId = currentUser?.userId || currentUser?.id || currentUser?.sub || null;

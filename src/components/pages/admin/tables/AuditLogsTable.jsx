@@ -14,6 +14,7 @@ export default function AuditLogsTable() {
       { header: 'Operation', accessor: 'operation' },
       { header: 'Record ID', accessor: 'record_id' },
       { header: 'Changed By', accessor: 'changed_by' },
+      { header: 'Username', accessor: 'username' },
       { 
         header: 'Changed At', 
         accessor: 'changed_at', 

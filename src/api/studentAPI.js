@@ -22,6 +22,10 @@ export const getAllStudents = async () => {
 
   return request.data.students;
 };
+export const getAllStudentsM = async () => {
+  const request = await api.get("/students/m");
+  return request.data.students;
+};
 export const getStudentAVGAbove7 = async () => {
   const request = await api.get("/students/avg-above-7");
   const data = request.data;
