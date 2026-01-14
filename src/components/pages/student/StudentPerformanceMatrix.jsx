@@ -146,7 +146,7 @@ export default function StudentPerformanceMatrix({ studentId: propStudentId }) {
           </tr>
           <tr>
             <td>Днів від останньої активності</td>
-            <td>{fmtValue(recency.days_since_last_activity)}</td>
+            <td>{fmtValue(recency.days_since_last_activity.hours)} годин {fmtValue(recency.days_since_last_activity.minutes)} хвилин</td>
           </tr>
         </tbody>
       </table>
